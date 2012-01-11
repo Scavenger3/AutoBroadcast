@@ -13,3 +13,8 @@ C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\Compi
 C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\AutoBroadcast\obj\Debug\ResolveAssemblyReference.cache
 C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\AutoBroadcast\obj\Debug\AutoBroadcast.dll
 C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\AutoBroadcast\obj\Debug\AutoBroadcast.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\Compiled\AutoBroadcast.dll
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\Compiled\AutoBroadcast.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcast\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcast\obj\Debug\AutoBroadcast.dll
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcast\obj\Debug\AutoBroadcast.pdb

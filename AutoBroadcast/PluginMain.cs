@@ -134,14 +134,38 @@ namespace AutoBroadcast
         }
         public static void bctoGroup(string bcgroup, string message, byte colorr, byte colorg, byte colorb)
         {
-            foreach (bcplayer player in bcplayers)
-                if (player.PlayerGrp == bcgroup)
-                    player.SendMessage(message, colorr, colorg, colorb);
+            try
+            {
+                foreach (bcplayer player in bcplayers)
+                    if (player.TSPlayer.Group.Name == bcgroup)
+                        player.SendMessage(message, colorr, colorg, colorb);
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error With AutoBroadcast - bctogroup");
+                Console.WriteLine("Please Post Error in Server Log to the thread!");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Log.Error("Origin - bctogroup");
+                Log.Error(ex.ToString());
+            }
         }
         public static void bctoAll(string message, byte colorr, byte colorg, byte colorb)
         {
-            foreach (bcplayer player in bcplayers)
+            try
+            {
+                foreach (bcplayer player in bcplayers)
                     player.SendMessage(message, colorr, colorg, colorb);
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error With AutoBroadcast - bctoall");
+                Console.WriteLine("Please Post Error in Server Log to the thread!");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Log.Error("Origin - bctoall");
+                Log.Error(ex.ToString());
+            }
         }
 
         public void OnUpdate()
@@ -385,9 +409,10 @@ namespace AutoBroadcast
 
     public class bcplayer
     {
-        public string PlayerGrp { get { return TShock.Players[Index].Group.Name; } }
-        public int Index;
-        public string PlayerName { get { return Main.player[Index].name; } }
+        public int Index { get; set; }
+        public TSPlayer TSPlayer { get { return TShock.Players[Index]; } }
+        //public string PlayerGrp { get { return TShock.Players[Index].Group.Name; } }
+        //public string PlayerName { get { return Main.player[Index].name; } }
 
 
         public bcplayer(int index)
