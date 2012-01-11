@@ -1,0 +1,15 @@
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.2\RELEASE\AutoBroadcast.dll
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.2\RELEASE\AutoBroadcast.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.2\TShockPluginTemplate\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.2\TShockPluginTemplate\obj\Debug\AutoBroadcast.dll
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.2\TShockPluginTemplate\obj\Debug\AutoBroadcast.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\RELEASE\AutoBroadcast.dll
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\RELEASE\AutoBroadcast.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\TShockPluginTemplate\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\TShockPluginTemplate\obj\Debug\AutoBroadcast.dll
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\TShockPluginTemplate\obj\Debug\AutoBroadcast.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\Compiled\AutoBroadcast.dll
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\Compiled\AutoBroadcast.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\AutoBroadcast\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\AutoBroadcast\obj\Debug\AutoBroadcast.dll
+C:\Users\42373\Documents\Programming\TShock Plugins\Auto Broadcasting\v1.3\AutoBroadcast\obj\Debug\AutoBroadcast.pdb
