@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace AutoBroadcast
 {
-    [APIVersion(1, 10)]
+    [APIVersion(1, 11)]
     public class AutoBroadcast : TerrariaPlugin
     {
         public static abcConfig getConfig { get; set; }
@@ -37,10 +37,10 @@ namespace AutoBroadcast
         {
             get { return "Automatically Broadcast a Message every x seconds"; }
         }
-         
+
         public override Version Version
         {
-            get { return Assembly.GetExecutingAssembly().GetName().Version; }
+            get { return new Version("1.3.2"); }
         }
 
         public override void Initialize()
