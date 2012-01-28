@@ -6,18 +6,23 @@ using Terraria;
 using TShockAPI;
 using Hooks;
 using Config;
+using System.ComponentModel;
 
 namespace AutoBroadcast
 {
     [APIVersion(1, 11)]
-    public class PluginMain : TerrariaPlugin
+    public class AutoBroadcast : TerrariaPlugin
     {
         public static abcConfig getConfig { get; set; }
         internal static string getConfigPath { get { return Path.Combine(TShock.SavePath, "AutoBroadcastConfig.json"); } }
 
-        public static Timer Broadcast1 = new Timer();
-        public static Timer Broadcast2 = new Timer();
-        public static Timer Broadcast3 = new Timer();
+        public static Timer Broadcast = new Timer(1000);
+        public static int Broadcast1 = 0;
+        public static int Broadcast2 = 0;
+        public static int Broadcast3 = 0;
+
+        public static List<abcPlayer> abcPlayers = new List<abcPlayer>();
+        public static int playercount = 0;
 
         public override string Name
         {
@@ -36,12 +41,14 @@ namespace AutoBroadcast
 
         public override Version Version
         {
-            get { return new Version("1.4"); }
+            get { return new Version("1.3.3"); }
         }
 
         public override void Initialize()
         {
             GameHooks.Initialize += OnInitialize;
+            NetHooks.GreetPlayer += OnGreetPlayer;
+            ServerHooks.Leave += OnLeave;
         }
 
         protected override void Dispose(bool disposing)
@@ -49,78 +56,31 @@ namespace AutoBroadcast
             if (disposing)
             {
                 GameHooks.Initialize -= OnInitialize;
+                NetHooks.GreetPlayer -= OnGreetPlayer;
+                ServerHooks.Leave -= OnLeave;
             }
             base.Dispose(disposing);
         }
 
-        public PluginMain(Main game)
+        public AutoBroadcast(Main game)
             : base(game)
         {
-            getConfig = new abcConfig();
+            Order = 1;
+            getConfig = new abcConfig(); 
         }
 
-        #region Config
-        public static void SetupConfig()
-        {
-            try
-            {
-                if (File.Exists(getConfigPath))
-                {
-                    getConfig = abcConfig.Read(getConfigPath);
-                }
-                getConfig.Write(getConfigPath);
-                Broadcast1.Interval = (getConfig.Message1_Interval * 1000);
-                Broadcast2.Interval = (getConfig.Message2_Interval * 1000);
-                Broadcast3.Interval = (getConfig.Message3_Interval * 1000);
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error in Auto Broadcast config file");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Log.Error("Config Exception in Auto Broadcast Config file");
-                Log.Error(ex.ToString());
-            }
-        }
-
-        public static void ReloadConfig(CommandArgs args)
-        {
-            try
-            {
-                if (File.Exists(getConfigPath))
-                {
-                    getConfig = abcConfig.Read(getConfigPath);
-                }
-                getConfig.Write(getConfigPath);
-                Broadcast1.Interval = (getConfig.Message1_Interval * 1000);
-                Broadcast2.Interval = (getConfig.Message2_Interval * 1000);
-                Broadcast3.Interval = (getConfig.Message3_Interval * 1000);
-                args.Player.SendMessage("Settings reloaded from config file!", Color.MediumSeaGreen);
-            }
-            catch (Exception ex)
-            {
-                args.Player.SendMessage("Error: Could not reload config file!, Check Logs!", Color.IndianRed);
-                Log.Error("Config Exception in Auto Broadcast Config file");
-                Log.Error(ex.ToString());
-            }
-        }
-        #endregion
-
+        #region Hooks
         public void OnInitialize()
         {
             SetupConfig();
-            Broadcast1.Elapsed += new ElapsedEventHandler(Broadcast1_Elapsed);
-            Broadcast2.Elapsed += new ElapsedEventHandler(Broadcast2_Elapsed);
-            Broadcast2.Elapsed += new ElapsedEventHandler(Broadcast3_Elapsed);
-            Broadcast1.Interval = (getConfig.Message1_Interval * 1000);
-            Broadcast2.Interval = (getConfig.Message2_Interval * 1000);
-            Broadcast3.Interval = (getConfig.Message3_Interval * 1000);
-            if (getConfig.Message1_Enabled)
-                Broadcast1.Start();
-            if (getConfig.Message2_Enabled)
-                Broadcast2.Start();
-            if (getConfig.Message3_Enabled)
-                Broadcast3.Start();
+
+            Broadcast1 = getConfig.Message1_Interval;
+            Broadcast2 = getConfig.Message2_Interval;
+            Broadcast3 = getConfig.Message3_Interval;
+
+            Broadcast.Elapsed += new ElapsedEventHandler(Broadcast_Elapsed);
+            if (getConfig.Message1_Enabled || getConfig.Message2_Enabled || getConfig.Message3_Enabled)
+                Broadcast.Start();
 
             bool abroadcast = false;
             foreach (Group group in TShock.Groups.groups)
@@ -138,110 +98,193 @@ namespace AutoBroadcast
             TShock.Groups.AddPermissions("trustedadmin", permlist);
 
             Commands.ChatCommands.Add(new Command("abroadcast", autobc, "autobc"));
-            Commands.ChatCommands.Add(new Command("abroadcast", msgset, "mset", "sm"));
+            Commands.ChatCommands.Add(new Command("abroadcast", msgset, "setm"));
         }
 
-        #region Broadcast 1
-        static void Broadcast1_Elapsed(object sender, ElapsedEventArgs e)
+        public void OnGreetPlayer(int who, HandledEventArgs e)
         {
-            if (!getConfig.Message1_Enabled)
+            lock (abcPlayers)
+                abcPlayers.Add(new abcPlayer(who));
+            if (playercount == 0)
+                Broadcast.Start();
+            playercount++;
+        }
+
+        public void OnLeave(int ply)
+        {
+            lock (abcPlayers)
             {
-                Broadcast1.Stop();
-            }
-            else
-            {
-                if (getConfig.Message1_Group == "")
+                for (int i = 0; i < abcPlayers.Count; i++)
                 {
-                    foreach (string msg in getConfig.Message1_Messages)
+                    if (abcPlayers[i].Index == ply)
                     {
-                        if (msg != null && msg != " " && msg != "")
-                            bctoAll(msg, getConfig.Message1_ColorR, getConfig.Message1_ColorG, getConfig.Message1_ColorB);
+                        abcPlayers.RemoveAt(i);
+                        break; //Found the player, break.
                     }
                 }
-                else
+            }
+            playercount--;
+            if (playercount == 0)
+                Broadcast.Stop();
+        }
+        #endregion
+
+        #region Timer
+        static void Broadcast_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (!getConfig.Message1_Enabled && !getConfig.Message2_Enabled && !getConfig.Message3_Enabled)
+                Broadcast.Stop();
+            else
+            {
+                if (Broadcast1 > 0)
+                    Broadcast1--;
+
+                if (Broadcast2 > 0)
+                    Broadcast2--;
+
+                if (Broadcast3 > 0)
+                    Broadcast3--;
+
+                if (Broadcast1 < 1)
                 {
-                    foreach (string msg in getConfig.Message1_Messages)
-                    {
-                        if (msg != null && msg != " " && msg != "")
-                            bctoGroup(getConfig.Message1_Group, msg, getConfig.Message1_ColorR, getConfig.Message1_ColorG, getConfig.Message1_ColorB);
-                    }
+                    if (getConfig.Message1_Group == "")
+                        bctoAll(GetLines(1), getConfig.Message1_ColorR, getConfig.Message1_ColorG, getConfig.Message1_ColorB);
+                    else
+                        bctoGroup(getConfig.Message1_Group, GetLines(1), getConfig.Message1_ColorR, getConfig.Message1_ColorG, getConfig.Message1_ColorB);
+
+                    Broadcast1 = getConfig.Message1_Interval;
+                }
+
+                if (Broadcast2 < 1)
+                {
+                    if (getConfig.Message2_Group == "")
+                        bctoAll(GetLines(2), getConfig.Message2_ColorR, getConfig.Message2_ColorG, getConfig.Message2_ColorB);
+                    else
+                        bctoGroup(getConfig.Message2_Group, GetLines(2), getConfig.Message2_ColorR, getConfig.Message2_ColorG, getConfig.Message2_ColorB);
+
+                    Broadcast2 = getConfig.Message2_Interval;
+                }
+
+                if (Broadcast3 < 1)
+                {
+                    if (getConfig.Message3_Group == "")
+                        bctoAll(GetLines(3), getConfig.Message3_ColorR, getConfig.Message3_ColorG, getConfig.Message3_ColorB);
+                    else
+                        bctoGroup(getConfig.Message3_Group, GetLines(3), getConfig.Message3_ColorR, getConfig.Message3_ColorG, getConfig.Message3_ColorB);
+
+                    Broadcast3 = getConfig.Message3_Interval;
                 }
             }
         }
         #endregion
 
-        #region Broadcast 2
-        static void Broadcast2_Elapsed(object sender, ElapsedEventArgs e)
+        #region Config
+        public static void SetupConfig()
         {
-            if (!getConfig.Message2_Enabled)
+            try
             {
-                Broadcast2.Stop();
-            }
-            else
-            {
-                if (getConfig.Message2_Group == "")
+                if (File.Exists(getConfigPath))
                 {
-                    foreach (string msg in getConfig.Message2_Messages)
-                    {
-                        if (msg != null && msg != " " && msg != "")
-                            bctoAll(msg, getConfig.Message2_ColorR, getConfig.Message2_ColorG, getConfig.Message2_ColorB);
-                    }
+                    getConfig = abcConfig.Read(getConfigPath);
                 }
-                else
-                {
-                    foreach (string msg in getConfig.Message2_Messages)
-                    {
-                        if (msg != null && msg != " " && msg != "")
-                            bctoGroup(getConfig.Message2_Group, msg, getConfig.Message2_ColorR, getConfig.Message2_ColorG, getConfig.Message2_ColorB);
-                    }
-                }
+                getConfig.Write(getConfigPath);
             }
-        }
-        #endregion
-
-        #region Broadcast 3
-        static void Broadcast3_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            if (!getConfig.Message3_Enabled)
+            catch (Exception ex)
             {
-                Broadcast3.Stop();
-            }
-            else
-            {
-                if (getConfig.Message3_Group == "")
-                {
-                    foreach (string msg in getConfig.Message3_Messages)
-                    {
-                        if (msg != null && msg != " " && msg != "")
-                            bctoAll(msg, getConfig.Message3_ColorR, getConfig.Message3_ColorG, getConfig.Message3_ColorB);
-                    }
-                }
-                else
-                {
-                    foreach (string msg in getConfig.Message3_Messages)
-                    {
-                        if (msg != null && msg != " " && msg != "")
-                            bctoGroup(getConfig.Message3_Group, msg, getConfig.Message3_ColorR, getConfig.Message3_ColorG, getConfig.Message3_ColorB);
-                    }
-                }
-            }
-        }
-        #endregion
-
-        #region Broadcast Methods
-        public static void bctoGroup(string bcgroup, string message, byte colorr, byte colorg, byte colorb)
-        {
-            foreach (TSPlayer player in TShock.Players)
-            {
-                if (player.Group.Name == bcgroup)
-                player.SendMessage(message, colorr, colorg, colorb);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error in Auto Broadcast config file");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Log.Error("Config Exception in Auto Broadcast Config file");
+                Log.Error(ex.ToString());
             }
         }
 
-        public static void bctoAll(string message, byte colorr, byte colorg, byte colorb)
+        public static void ReloadConfig(CommandArgs p)
         {
-            foreach (TSPlayer player in TShock.Players) 
-                player.SendMessage(message, colorr, colorg, colorb);
+            try
+            {
+                if (File.Exists(getConfigPath))
+                {
+                    getConfig = abcConfig.Read(getConfigPath);
+                }
+                getConfig.Write(getConfigPath);
+                if ((getConfig.Message1_Enabled && Broadcast1 > getConfig.Message1_Interval) || !getConfig.Message1_Enabled)
+                    Broadcast1 = getConfig.Message1_Interval;
+                if ((getConfig.Message2_Enabled && Broadcast2 > getConfig.Message2_Interval) || !getConfig.Message2_Enabled)
+                    Broadcast2 = getConfig.Message2_Interval;
+                if ((getConfig.Message3_Enabled && Broadcast3 > getConfig.Message3_Interval) || !getConfig.Message3_Enabled)
+                    Broadcast3 = getConfig.Message3_Interval;
+                p.Player.SendMessage("Settings reloaded from config file!", Color.MediumSeaGreen);
+            }
+            catch (Exception ex)
+            {
+                p.Player.SendMessage("Error: Could not reload config file!, Check Logs!", Color.Red);
+                Log.Error("Config Exception in Auto Broadcast Config file");
+                Log.Error(ex.ToString());
+            }
+        }
+        #endregion Config
+
+        #region Methods
+        public static void bctoGroup(string bcgroup, List<string> messages, byte colorr, byte colorg, byte colorb)
+        {
+            foreach (string msg in messages)
+            {
+                if (msg != "")
+                {
+                    foreach (abcPlayer player in abcPlayers)
+                        if (player.TSPlayer.Group.Name == bcgroup)
+                            player.SendMessage(msg, colorr, colorg, colorb);
+                }
+            }
+        }
+
+        public static void bctoAll(List<string> messages, byte colorr, byte colorg, byte colorb)
+        {
+            foreach (string msg in messages)
+            {
+                if (msg != "")
+                {
+                    foreach (abcPlayer player in abcPlayers)
+                        player.SendMessage(msg, colorr, colorg, colorb);
+                }
+            }
+        }
+
+        public static List<string> GetLines(int bc)
+        {
+            List<string> list = new List<string>();
+            if (bc == 1)
+            {
+                list.Add(getConfig.Message1_Line1);
+                list.Add(getConfig.Message1_Line2);
+                list.Add(getConfig.Message1_Line3);
+                list.Add(getConfig.Message1_Line4);
+                list.Add(getConfig.Message1_Line5);
+                list.Add(getConfig.Message1_Line6);
+                list.Add(getConfig.Message1_Line7);
+            }
+            else if (bc == 2)
+            {
+                list.Add(getConfig.Message2_Line1);
+                list.Add(getConfig.Message2_Line2);
+                list.Add(getConfig.Message2_Line3);
+                list.Add(getConfig.Message2_Line4);
+                list.Add(getConfig.Message2_Line5);
+                list.Add(getConfig.Message2_Line6);
+                list.Add(getConfig.Message2_Line7);
+            }
+            else if (bc == 3)
+            {
+                list.Add(getConfig.Message3_Line1);
+                list.Add(getConfig.Message3_Line2);
+                list.Add(getConfig.Message3_Line3);
+                list.Add(getConfig.Message3_Line4);
+                list.Add(getConfig.Message3_Line5);
+                list.Add(getConfig.Message3_Line6);
+                list.Add(getConfig.Message3_Line7);
+            }
+            return list;
         }
         #endregion
 
@@ -250,7 +293,7 @@ namespace AutoBroadcast
         {
             if (args.Parameters.Count < 1)
             {
-                args.Player.SendMessage("Usage: /autobc help - shows help for the /autobc set command", Color.Red);
+                args.Player.SendMessage("Usage: /autobc set - set broadcast configs!", Color.Red);
                 args.Player.SendMessage("Usage: /autobc reload - Reload settings from config file", Color.Red);
                 args.Player.SendMessage("Usage: /autobc sync <all/1/2/3> - syncronise broadcasts to your current time", Color.Red);
                 return;
@@ -258,13 +301,42 @@ namespace AutoBroadcast
 
             string subcmd = args.Parameters[0].ToLower();
 
-            if (subcmd == "help")
+            if (subcmd == "reload")
             {
-                args.Player.SendMessage("/autobc set <Message Number> <Setting> <Value>", Color.IndianRed);
-                args.Player.SendMessage("Settings: Enabled/Message/Colour/Interval/Group", Color.IndianRed);
+                ReloadConfig(args);
             }
             else if (subcmd == "set")
             {
+                if (args.Parameters.Count == 1)
+                {
+                    args.Player.SendMessage("Usage: /autobc set <Message Number> <Setting> <Value>", Color.Red);
+                    args.Player.SendMessage("Settings: Enabled/Message/Colour/Interval/Group", Color.Red);
+                    return;
+                }
+                else if (args.Parameters.Count == 2)
+                {
+                    args.Player.SendMessage("Settings: Enabled/Message/Colour/Interval/Group", Color.Red);
+                    return;
+                }
+                else if (args.Parameters.Count == 3)
+                {
+                    string sett = args.Parameters[2].ToLower();
+                    if (sett == "enabled")
+                        args.Player.SendMessage("values for Enabled: True/False", Color.Red);
+                    else if (sett == "message")
+                        args.Player.SendMessage("Please Use: /setm <Message Number> <Message Line> <Message Text>", Color.Red);
+                    else if (sett == "color" || sett == "colour")
+                        args.Player.SendMessage("values for Colour: R,G,B", Color.Red);
+                    else if (sett == "interval")
+                        args.Player.SendMessage("value for Interval: <time in seconds>", Color.Red);
+                    else if (sett == "groups")
+                        args.Player.SendMessage("value for groups: <group name>", Color.Red);
+                    else
+                        args.Player.SendMessage("Settings: Enabled/Message/Colour/Interval/Group", Color.Red);
+                    
+                    return;
+                }
+
                 #region set values
                 int msgnumber = 0;
                 if (!int.TryParse(args.Parameters[1], out msgnumber) || msgnumber > 3)//SET Message Number
@@ -288,16 +360,16 @@ namespace AutoBroadcast
                         {
                             getConfig.Message1_Enabled = true;
                             getConfig.Write(getConfigPath);
-                            if (!Broadcast1.Enabled)
-                                Broadcast1.Start();
+                            if (!Broadcast.Enabled)
+                                Broadcast.Start();
                             args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                         }
                         else if (value == "false")
                         {
                             getConfig.Message1_Enabled = false;
                             getConfig.Write(getConfigPath);
-                            if (Broadcast1.Enabled)
-                                Broadcast1.Stop();
+                            if (!getConfig.Message2_Enabled && !getConfig.Message3_Enabled && Broadcast.Enabled)
+                                Broadcast.Stop();
                             args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                         }
                         else
@@ -305,7 +377,7 @@ namespace AutoBroadcast
                     }
                     else if (setting == "message")
                     {
-                        args.Player.SendMessage("Please Use: /mset <Message Number> <Message Line> <Message Text>", Color.Red);
+                        args.Player.SendMessage("Please Use: /setm <Message Number> <Message Line> <Message Text>", Color.Red);
                         return;
                     }
                     else if (setting == "color" || setting == "colour")
@@ -345,7 +417,6 @@ namespace AutoBroadcast
                         }
                         getConfig.Message1_Interval = val;
                         getConfig.Write(getConfigPath);
-                        Broadcast1.Interval = (getConfig.Message1_Interval * 1000);
                         args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                     }
 
@@ -369,16 +440,16 @@ namespace AutoBroadcast
                         {
                             getConfig.Message2_Enabled = true;
                             getConfig.Write(getConfigPath);
-                            if (!Broadcast2.Enabled)
-                                Broadcast2.Start();
+                            if (!Broadcast.Enabled)
+                                Broadcast.Start();
                             args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                         }
                         else if (value == "false")
                         {
                             getConfig.Message2_Enabled = false;
                             getConfig.Write(getConfigPath);
-                            if (Broadcast2.Enabled)
-                                Broadcast2.Stop();
+                            if (!getConfig.Message1_Enabled && !getConfig.Message3_Enabled && Broadcast.Enabled)
+                                Broadcast.Stop();
                             args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                         }
                         else
@@ -425,7 +496,6 @@ namespace AutoBroadcast
                         }
                         getConfig.Message2_Interval = val;
                         getConfig.Write(getConfigPath);
-                        Broadcast2.Interval = (getConfig.Message2_Interval * 1000);
                         args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                     }
 
@@ -449,16 +519,16 @@ namespace AutoBroadcast
                         {
                             getConfig.Message3_Enabled = true;
                             getConfig.Write(getConfigPath);
-                            if (!Broadcast3.Enabled)
-                                Broadcast3.Start();
+                            if (!Broadcast.Enabled)
+                                Broadcast.Start();
                             args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                         }
                         else if (value == "false")
                         {
                             getConfig.Message3_Enabled = false;
                             getConfig.Write(getConfigPath);
-                            if (Broadcast3.Enabled)
-                                Broadcast3.Stop();
+                            if (!getConfig.Message1_Enabled && !getConfig.Message2_Enabled && Broadcast.Enabled)
+                                Broadcast.Stop();
                             args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                         }
                         else
@@ -505,7 +575,6 @@ namespace AutoBroadcast
                         }
                         getConfig.Message3_Interval = val;
                         getConfig.Write(getConfigPath);
-                        Broadcast3.Interval = (getConfig.Message3_Interval * 1000);
                         args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
                     }
 
@@ -520,47 +589,34 @@ namespace AutoBroadcast
                 }
                 #endregion
             }
-            else if (subcmd == "reload")
-            {
-                ReloadConfig(args);
-            }
             else if (subcmd == "sync" && args.Parameters.Count == 2)
             {
                 if (args.Parameters[1] == "all")
                 {
-                    //1
-                    Broadcast1.Stop();
-                    Broadcast1.Start();
-                    //2
-                    Broadcast2.Stop();
-                    Broadcast2.Start();
-                    //3
-                    Broadcast3.Stop();
-                    Broadcast3.Start();
+                    Broadcast1 = getConfig.Message1_Interval;
+                    Broadcast2 = getConfig.Message2_Interval;
+                    Broadcast3 = getConfig.Message3_Interval;
                     args.Player.SendMessage("All broadcasts syncronised to the current time", Color.Red);
                 }
                 else if (args.Parameters[1] == "1")
                 {
-                    Broadcast1.Stop();
-                    Broadcast1.Start();
+                    Broadcast1 = getConfig.Message1_Interval;
                     args.Player.SendMessage("First broadcast syncronised to the current time", Color.Red);
                 }
                 else if (args.Parameters[1] == "2")
                 {
-                    Broadcast2.Stop();
-                    Broadcast2.Start();
+                    Broadcast2 = getConfig.Message2_Interval;
                     args.Player.SendMessage("Second broadcast syncronised to the current time", Color.Red);
                 }
                 else if (args.Parameters[1] == "3")
                 {
-                    Broadcast3.Stop();
-                    Broadcast3.Start();
+                    Broadcast3 = getConfig.Message3_Interval;
                     args.Player.SendMessage("Third broadcast syncronised to the current time", Color.Red);
                 }
             }
             else
             {
-                args.Player.SendMessage("Usage: /autobc help - shows help for the /autobc set command", Color.Red);
+                args.Player.SendMessage("Usage: /autobc set - set broadcast configs!", Color.Red);
                 args.Player.SendMessage("Usage: /autobc reload - Reload settings from config file", Color.Red);
                 args.Player.SendMessage("Usage: /autobc sync <all/1/2/3> - syncronise broadcasts to your current time", Color.Red);
             }
@@ -571,7 +627,7 @@ namespace AutoBroadcast
             #region Set Values
             if (args.Parameters.Count < 2)
             {
-                args.Player.SendMessage("Usage: /mset <Message Number> <Message Line> <Message Text/None>", Color.Red);
+                args.Player.SendMessage("Usage: /setm <Message Number> <Message Line> <Message Text/None>", Color.Red);
                 return;
             }
 
@@ -602,9 +658,9 @@ namespace AutoBroadcast
                 if (lnenumber == 1)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message1_Messages.SetValue("", 0);
+                        getConfig.Message1_Line1 = "";
                     else
-                        getConfig.Message1_Messages.SetValue(MText, 0);
+                        getConfig.Message1_Line1 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -612,9 +668,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 2)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message1_Messages.SetValue("", 1);
+                        getConfig.Message1_Line2 = "";
                     else
-                        getConfig.Message1_Messages.SetValue(MText, 1);
+                        getConfig.Message1_Line2 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -622,9 +678,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 3)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message1_Messages.SetValue("", 2);
+                        getConfig.Message1_Line3 = "";
                     else
-                        getConfig.Message1_Messages.SetValue(MText, 2);
+                        getConfig.Message1_Line3 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -632,9 +688,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 4)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message1_Messages.SetValue("", 3);
+                        getConfig.Message1_Line4 = "";
                     else
-                        getConfig.Message1_Messages.SetValue(MText, 3);
+                        getConfig.Message1_Line4 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -642,9 +698,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 5)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message1_Messages.SetValue("", 4);
+                        getConfig.Message1_Line5 = "";
                     else
-                        getConfig.Message1_Messages.SetValue(MText, 4);
+                        getConfig.Message1_Line5 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -652,9 +708,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 6)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message1_Messages.SetValue("", 5);
+                        getConfig.Message1_Line6 = "";
                     else
-                        getConfig.Message1_Messages.SetValue(MText, 5);
+                        getConfig.Message1_Line6 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -662,9 +718,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 7)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message1_Messages.SetValue("", 6);
+                        getConfig.Message1_Line7 = "";
                     else
-                        getConfig.Message1_Messages.SetValue(MText, 6);
+                        getConfig.Message1_Line7 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -678,9 +734,9 @@ namespace AutoBroadcast
                 if (lnenumber == 1)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message2_Messages.SetValue("", 0);
+                        getConfig.Message2_Line1 = "";
                     else
-                        getConfig.Message2_Messages.SetValue(MText, 0);
+                        getConfig.Message2_Line1 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -688,9 +744,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 2)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message2_Messages.SetValue("", 1);
+                        getConfig.Message2_Line2 = "";
                     else
-                        getConfig.Message2_Messages.SetValue(MText, 1);
+                        getConfig.Message2_Line2 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -698,9 +754,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 3)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message2_Messages.SetValue("", 2);
+                        getConfig.Message2_Line3 = "";
                     else
-                        getConfig.Message2_Messages.SetValue(MText, 2);
+                        getConfig.Message2_Line3 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -708,9 +764,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 4)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message2_Messages.SetValue("", 3);
+                        getConfig.Message2_Line4 = "";
                     else
-                        getConfig.Message2_Messages.SetValue(MText, 3);
+                        getConfig.Message2_Line4 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -718,9 +774,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 5)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message2_Messages.SetValue("", 4);
+                        getConfig.Message2_Line5 = "";
                     else
-                        getConfig.Message2_Messages.SetValue(MText, 4);
+                        getConfig.Message2_Line5 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -728,9 +784,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 6)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message2_Messages.SetValue("", 5);
+                        getConfig.Message2_Line6 = "";
                     else
-                        getConfig.Message2_Messages.SetValue(MText, 5);
+                        getConfig.Message2_Line6 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -738,9 +794,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 7)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message2_Messages.SetValue("", 6);
+                        getConfig.Message2_Line7 = "";
                     else
-                        getConfig.Message2_Messages.SetValue(MText, 6);
+                        getConfig.Message2_Line7 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -754,9 +810,9 @@ namespace AutoBroadcast
                 if (lnenumber == 1)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message3_Messages.SetValue("", 0);
+                        getConfig.Message3_Line1 = "";
                     else
-                        getConfig.Message3_Messages.SetValue(MText, 0);
+                        getConfig.Message3_Line1 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -764,9 +820,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 2)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message3_Messages.SetValue("", 1);
+                        getConfig.Message3_Line2 = "";
                     else
-                        getConfig.Message3_Messages.SetValue(MText, 1);
+                        getConfig.Message3_Line2 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -774,9 +830,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 3)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message3_Messages.SetValue("", 2);
+                        getConfig.Message3_Line3 = "";
                     else
-                        getConfig.Message3_Messages.SetValue(MText, 2);
+                        getConfig.Message3_Line3 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -784,9 +840,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 4)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message3_Messages.SetValue("", 3);
+                        getConfig.Message3_Line4 = "";
                     else
-                        getConfig.Message3_Messages.SetValue(MText, 3);
+                        getConfig.Message3_Line4 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -794,9 +850,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 5)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message3_Messages.SetValue("", 4);
+                        getConfig.Message3_Line5 = "";
                     else
-                        getConfig.Message3_Messages.SetValue(MText, 4);
+                        getConfig.Message3_Line5 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -804,9 +860,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 6)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message3_Messages.SetValue("", 5);
+                        getConfig.Message3_Line6 = "";
                     else
-                        getConfig.Message3_Messages.SetValue(MText, 5);
+                        getConfig.Message3_Line6 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -814,9 +870,9 @@ namespace AutoBroadcast
                 else if (lnenumber == 7)
                 {
                     if (MTCheck == "none" || MTCheck == " " || MTCheck == "-")
-                        getConfig.Message3_Messages.SetValue("", 6);
+                        getConfig.Message3_Line7 = "";
                     else
-                        getConfig.Message3_Messages.SetValue(MText, 6);
+                        getConfig.Message3_Line7 = MText;
 
                     getConfig.Write(getConfigPath);
                     args.Player.SendMessage("Updated Succesfully!", Color.MediumSeaGreen);
@@ -826,4 +882,22 @@ namespace AutoBroadcast
         }
         #endregion Commands
     }
+
+    #region abcPlayerClass
+    public class abcPlayer
+    {
+        public int Index { get; set; }
+        public TSPlayer TSPlayer { get { return TShock.Players[Index]; } }
+
+        public abcPlayer(int index)
+        {
+            Index = index;
+        }
+
+        public void SendMessage(string message, int colorR, int colorG, int colorB)
+        {
+            NetMessage.SendData((int)PacketTypes.ChatText, Index, -1, message, 255, colorR, colorG, colorB);
+        }
+    }
+    #endregion
 }

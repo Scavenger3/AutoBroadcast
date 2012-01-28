@@ -26,8 +26,8 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="PluginMain.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="PluginMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
