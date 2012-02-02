@@ -18,7 +18,7 @@ namespace AutoBroadcastConfig
 
             List<string> defMessages = new List<string> { "", "", "", "", "", "", "" };
             List<string> defGroups = new List<string> { };
-            aBc new1 = new aBc("Broadcast 1", false, defMessages, 255, 255, 255, 300, defGroups);
+            aBc new1 = new aBc("Broadcast 1", false, defMessages, 255, 255,255, 300, defGroups);
 
             autoBcs.AutoBroadcast.Add(new1);
 

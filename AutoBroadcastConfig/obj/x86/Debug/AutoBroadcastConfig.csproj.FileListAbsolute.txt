@@ -1,0 +1,36 @@
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.frmMain.resources
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.frmOpen.resources
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.Properties.Resources.resources
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\AutoBroadcastConfig.exe.config
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\AutoBroadcastConfig.exe
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\AutoBroadcastConfig.pdb
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\Community.CsharpSqlite.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\Community.CsharpSqlite.SQLiteClient.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\HttpServer.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\LuaInterface.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\Mono.Data.Sqlite.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\MySql.Data.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\MySql.Web.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\Newtonsoft.Json.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\TerrariaServer.exe
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\TShockAPI.dll
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\HttpServer.pdb
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\HttpServer.xml
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\TShockAPI.pdb
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\bin\Debug\TShockAPI.xml
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.exe
+C:\Users\42373\Documents\Programming\Visual Studio 2010\Projects\AutoBroadcastConfig\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\Compiled\AutoBroadcastConfig.exe.config
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\Compiled\AutoBroadcastConfig.exe
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\Compiled\AutoBroadcastConfig.pdb
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcastConfig\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.frmMain.resources
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.frmOpen.resources
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.Properties.Resources.resources
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcastConfig\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcastConfig\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.exe
+C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.pdb

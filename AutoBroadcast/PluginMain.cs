@@ -5,16 +5,18 @@ using System.Collections.Generic;
 using Terraria;
 using TShockAPI;
 using Hooks;
-using Config;
 using System.ComponentModel;
+using AutoBroadcastConfig;
+using System.Net;
 
 namespace AutoBroadcast
 {
     [APIVersion(1, 11)]
     public class AutoBroadcast : TerrariaPlugin
     {
-        public static abcConfig getConfig { get; set; }
-        internal static string getConfigPath { get { return Path.Combine(TShock.SavePath, "AutoBroadcastConfig.json"); } }
+        public static aBList aBroadcasts;
+        public static String savepath = "";
+        public static List<int> TTNext = new List<int>();
 
         public static Timer Broadcast = new Timer(1000);
         public static int Broadcast1 = 0;
@@ -41,7 +43,7 @@ namespace AutoBroadcast
 
         public override Version Version
         {
-            get { return new Version("1.3.3"); }
+            get { return new Version("1.4"); }
         }
 
         public override void Initialize()
@@ -65,22 +67,41 @@ namespace AutoBroadcast
         public AutoBroadcast(Main game)
             : base(game)
         {
-            Order = 1;
-            getConfig = new abcConfig(); 
+            UpdateChecker();
+
+            Order = 4;
+            savepath = Path.Combine(TShockAPI.TShock.SavePath, "AutoBroadcastConfig.json");
+
+            ConfR reader = new ConfR();
+            if (File.Exists(savepath))
+            {
+                aBroadcasts = reader.readFile(Path.Combine(TShockAPI.TShock.SavePath, "AutoBroadcastConfig.json"));
+                Console.WriteLine(aBroadcasts.AutoBroadcast.Count + " Broadcasts have been loaded.");
+            }
+            else
+            {
+                aBroadcasts = reader.writeFile(Path.Combine(TShockAPI.TShock.SavePath, "AutoBroadcastConfig.json"));
+                Console.WriteLine("Empty Broadcast Config file being created.");
+            }
         }
 
         #region Hooks
         public void OnInitialize()
         {
-            SetupConfig();
+            //SetupConfig();
 
-            Broadcast1 = getConfig.Message1_Interval;
-            Broadcast2 = getConfig.Message2_Interval;
-            Broadcast3 = getConfig.Message3_Interval;
+            //Broadcast1 = getConfig.Message1_Interval;
+            //Broadcast2 = getConfig.Message2_Interval;
+            //Broadcast3 = getConfig.Message3_Interval;
 
             Broadcast.Elapsed += new ElapsedEventHandler(Broadcast_Elapsed);
-            if (getConfig.Message1_Enabled || getConfig.Message2_Enabled || getConfig.Message3_Enabled)
-                Broadcast.Start();
+            foreach (aBc bc in aBroadcasts.AutoBroadcast)
+            {
+                if (bc.Enabled)
+                    Broadcast.Enabled = true;
+
+                TTNext.Add(bc.Interval);
+            }
 
             bool abroadcast = false;
             foreach (Group group in TShock.Groups.groups)
@@ -98,7 +119,7 @@ namespace AutoBroadcast
             TShock.Groups.AddPermissions("trustedadmin", permlist);
 
             Commands.ChatCommands.Add(new Command("abroadcast", autobc, "autobc"));
-            Commands.ChatCommands.Add(new Command("abroadcast", msgset, "setm"));
+            //Commands.ChatCommands.Add(new Command("abroadcast", msgset, "setm"));
         }
 
         public void OnGreetPlayer(int who, HandledEventArgs e)
@@ -129,57 +150,66 @@ namespace AutoBroadcast
         }
         #endregion
 
+        #region Version Check - Thanks Dethmax!
+        private void UpdateChecker()
+        {
+            string raw;
+            try
+            {
+                raw = new WebClient().DownloadString("https://raw.github.com/Scavenger3/AutoBroadcast/master/Version.txt");
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            string[] list = raw.Split('\n');
+            if (list[0] != "1.4")
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(string.Format("New AutoBroadcast version: v{0}", list[0]));
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+        }
+        #endregion
+
         #region Timer
         static void Broadcast_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (!getConfig.Message1_Enabled && !getConfig.Message2_Enabled && !getConfig.Message3_Enabled)
+            bool stop = true;
+            foreach (aBc bc in aBroadcasts.AutoBroadcast)
+            {
+                if (bc.Enabled)
+                    stop = false;
+            }
+            if (stop)
                 Broadcast.Stop();
             else
             {
-                if (Broadcast1 > 0)
-                    Broadcast1--;
-
-                if (Broadcast2 > 0)
-                    Broadcast2--;
-
-                if (Broadcast3 > 0)
-                    Broadcast3--;
-
-                if (Broadcast1 < 1)
+                for (int i = 0; i < TTNext.Count; i++)
                 {
-                    if (getConfig.Message1_Group == "")
-                        bctoAll(GetLines(1), getConfig.Message1_ColorR, getConfig.Message1_ColorG, getConfig.Message1_ColorB);
-                    else
-                        bctoGroup(getConfig.Message1_Group, GetLines(1), getConfig.Message1_ColorR, getConfig.Message1_ColorG, getConfig.Message1_ColorB);
-
-                    Broadcast1 = getConfig.Message1_Interval;
+                    TTNext[i]--;
                 }
 
-                if (Broadcast2 < 1)
+                int v = 0;
+                foreach (aBc bc in aBroadcasts.AutoBroadcast)
                 {
-                    if (getConfig.Message2_Group == "")
-                        bctoAll(GetLines(2), getConfig.Message2_ColorR, getConfig.Message2_ColorG, getConfig.Message2_ColorB);
-                    else
-                        bctoGroup(getConfig.Message2_Group, GetLines(2), getConfig.Message2_ColorR, getConfig.Message2_ColorG, getConfig.Message2_ColorB);
+                    if (TTNext[v] < 1)
+                    {
+                        if (bc.Groups.Count < 1)
+                            bctoAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+                        else
+                            bctoGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
 
-                    Broadcast2 = getConfig.Message2_Interval;
-                }
-
-                if (Broadcast3 < 1)
-                {
-                    if (getConfig.Message3_Group == "")
-                        bctoAll(GetLines(3), getConfig.Message3_ColorR, getConfig.Message3_ColorG, getConfig.Message3_ColorB);
-                    else
-                        bctoGroup(getConfig.Message3_Group, GetLines(3), getConfig.Message3_ColorR, getConfig.Message3_ColorG, getConfig.Message3_ColorB);
-
-                    Broadcast3 = getConfig.Message3_Interval;
+                        TTNext[v] = bc.Interval;
+                    }
+                    v++;
                 }
             }
         }
         #endregion
 
         #region Config
-        public static void SetupConfig()
+        /*public static void SetupConfig()
         {
             try
             {
@@ -222,19 +252,24 @@ namespace AutoBroadcast
                 Log.Error("Config Exception in Auto Broadcast Config file");
                 Log.Error(ex.ToString());
             }
-        }
+        }*/
         #endregion Config
 
         #region Methods
-        public static void bctoGroup(string bcgroup, List<string> messages, byte colorr, byte colorg, byte colorb)
+        public static void bctoGroup(List<string> bcgroup, List<string> messages, byte colorr, byte colorg, byte colorb)
         {
             foreach (string msg in messages)
             {
                 if (msg != "")
                 {
                     foreach (abcPlayer player in abcPlayers)
-                        if (player.TSPlayer.Group.Name == bcgroup)
-                            player.SendMessage(msg, colorr, colorg, colorb);
+                    {
+                        foreach (string grp in bcgroup)
+                        {
+                            if (player.TSPlayer.Group.Name == grp)
+                                player.SendMessage(msg, colorr, colorg, colorb);
+                        }
+                    }
                 }
             }
         }
@@ -250,42 +285,6 @@ namespace AutoBroadcast
                 }
             }
         }
-
-        public static List<string> GetLines(int bc)
-        {
-            List<string> list = new List<string>();
-            if (bc == 1)
-            {
-                list.Add(getConfig.Message1_Line1);
-                list.Add(getConfig.Message1_Line2);
-                list.Add(getConfig.Message1_Line3);
-                list.Add(getConfig.Message1_Line4);
-                list.Add(getConfig.Message1_Line5);
-                list.Add(getConfig.Message1_Line6);
-                list.Add(getConfig.Message1_Line7);
-            }
-            else if (bc == 2)
-            {
-                list.Add(getConfig.Message2_Line1);
-                list.Add(getConfig.Message2_Line2);
-                list.Add(getConfig.Message2_Line3);
-                list.Add(getConfig.Message2_Line4);
-                list.Add(getConfig.Message2_Line5);
-                list.Add(getConfig.Message2_Line6);
-                list.Add(getConfig.Message2_Line7);
-            }
-            else if (bc == 3)
-            {
-                list.Add(getConfig.Message3_Line1);
-                list.Add(getConfig.Message3_Line2);
-                list.Add(getConfig.Message3_Line3);
-                list.Add(getConfig.Message3_Line4);
-                list.Add(getConfig.Message3_Line5);
-                list.Add(getConfig.Message3_Line6);
-                list.Add(getConfig.Message3_Line7);
-            }
-            return list;
-        }
         #endregion
 
         #region Commands
@@ -293,9 +292,9 @@ namespace AutoBroadcast
         {
             if (args.Parameters.Count < 1)
             {
-                args.Player.SendMessage("Usage: /autobc set - set broadcast configs!", Color.Red);
+                //args.Player.SendMessage("Usage: /autobc set - set broadcast configs!", Color.Red);
                 args.Player.SendMessage("Usage: /autobc reload - Reload settings from config file", Color.Red);
-                args.Player.SendMessage("Usage: /autobc sync <all/1/2/3> - syncronise broadcasts to your current time", Color.Red);
+                args.Player.SendMessage("Usage: /autobc sync all - syncronise broadcasts to your current time", Color.Red);
                 return;
             }
 
@@ -303,9 +302,21 @@ namespace AutoBroadcast
 
             if (subcmd == "reload")
             {
-                ReloadConfig(args);
+                try
+                {
+                    ConfR reader = new ConfR();
+                    aBroadcasts = reader.readFile(Path.Combine(TShockAPI.TShock.SavePath, "AutoBroadcastConfig.json"));
+                    args.Player.SendMessage("Settings reloaded from config file!", Color.MediumSeaGreen);
+                }
+                catch (Exception ex)
+                {
+                    args.Player.SendMessage("Error: Could not reload config file!, Check Logs!", Color.Red);
+                    Log.Error("Config Exception in Auto Broadcast Config file");
+                    Log.Error(ex.ToString());
+                }
             }
-            else if (subcmd == "set")
+            #region old set
+            /*else if (subcmd == "set")
             {
                 if (args.Parameters.Count == 1)
                 {
@@ -588,17 +599,21 @@ namespace AutoBroadcast
                         args.Player.SendMessage("Invalid Setting, Valid Settings: Enabled/Message/Colour/Interval/Group", Color.IndianRed);
                 }
                 #endregion
-            }
+            }*/
+            #endregion
             else if (subcmd == "sync" && args.Parameters.Count == 2)
             {
                 if (args.Parameters[1] == "all")
                 {
-                    Broadcast1 = getConfig.Message1_Interval;
-                    Broadcast2 = getConfig.Message2_Interval;
-                    Broadcast3 = getConfig.Message3_Interval;
+                    int v = 0;
+                    foreach (aBc bc in aBroadcasts.AutoBroadcast)
+                    {
+                        TTNext[v] = bc.Interval;
+                        v++;
+                    }
                     args.Player.SendMessage("All broadcasts syncronised to the current time", Color.Red);
                 }
-                else if (args.Parameters[1] == "1")
+                /*else if (args.Parameters[1] == "1")
                 {
                     Broadcast1 = getConfig.Message1_Interval;
                     args.Player.SendMessage("First broadcast syncronised to the current time", Color.Red);
@@ -612,17 +627,18 @@ namespace AutoBroadcast
                 {
                     Broadcast3 = getConfig.Message3_Interval;
                     args.Player.SendMessage("Third broadcast syncronised to the current time", Color.Red);
-                }
+                }*/
             }
             else
             {
-                args.Player.SendMessage("Usage: /autobc set - set broadcast configs!", Color.Red);
+                //args.Player.SendMessage("Usage: /autobc set - set broadcast configs!", Color.Red);
                 args.Player.SendMessage("Usage: /autobc reload - Reload settings from config file", Color.Red);
-                args.Player.SendMessage("Usage: /autobc sync <all/1/2/3> - syncronise broadcasts to your current time", Color.Red);
+                args.Player.SendMessage("Usage: /autobc sync all - syncronise all broadcasts to your current time", Color.Red);
             }
         }
 
-        public static void msgset(CommandArgs args)
+        #region old msg set
+        /*public static void msgset(CommandArgs args)
         {
             #region Set Values
             if (args.Parameters.Count < 2)
@@ -879,7 +895,9 @@ namespace AutoBroadcast
                 }
             }
             #endregion
-        }
+        }*/
+        #endregion
+
         #endregion Commands
     }
 
