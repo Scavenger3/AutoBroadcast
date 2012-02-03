@@ -151,7 +151,7 @@
             this.lstMsgs.FormattingEnabled = true;
             this.lstMsgs.Location = new System.Drawing.Point(174, 251);
             this.lstMsgs.Name = "lstMsgs";
-            this.lstMsgs.Size = new System.Drawing.Size(335, 108);
+            this.lstMsgs.Size = new System.Drawing.Size(335, 95);
             this.lstMsgs.TabIndex = 7;
             this.lstMsgs.SelectedIndexChanged += new System.EventHandler(this.lstMsgs_SelectedIndexChanged);
             // 
@@ -419,7 +419,7 @@
             this.rectangleShape3,
             this.rectangleShape2,
             this.rectangleShape1});
-            this.shapeContainer1.Size = new System.Drawing.Size(834, 432);
+            this.shapeContainer1.Size = new System.Drawing.Size(834, 416);
             this.shapeContainer1.TabIndex = 35;
             this.shapeContainer1.TabStop = false;
             // 
@@ -427,7 +427,7 @@
             // 
             this.rectangleShape3.Location = new System.Drawing.Point(166, 222);
             this.rectangleShape3.Name = "rectangleShape3";
-            this.rectangleShape3.Size = new System.Drawing.Size(349, 200);
+            this.rectangleShape3.Size = new System.Drawing.Size(349, 182);
             // 
             // rectangleShape2
             // 
@@ -443,14 +443,14 @@
             // 
             // txtMsg
             // 
-            this.txtMsg.Location = new System.Drawing.Point(174, 395);
+            this.txtMsg.Location = new System.Drawing.Point(174, 381);
             this.txtMsg.Name = "txtMsg";
             this.txtMsg.Size = new System.Drawing.Size(335, 20);
             this.txtMsg.TabIndex = 38;
             // 
             // btnMsgEdit
             // 
-            this.btnMsgEdit.Location = new System.Drawing.Point(174, 366);
+            this.btnMsgEdit.Location = new System.Drawing.Point(174, 352);
             this.btnMsgEdit.Name = "btnMsgEdit";
             this.btnMsgEdit.Size = new System.Drawing.Size(120, 23);
             this.btnMsgEdit.TabIndex = 37;
@@ -468,7 +468,7 @@
             // 
             // btnMsgClr
             // 
-            this.btnMsgClr.Location = new System.Drawing.Point(300, 366);
+            this.btnMsgClr.Location = new System.Drawing.Point(300, 352);
             this.btnMsgClr.Name = "btnMsgClr";
             this.btnMsgClr.Size = new System.Drawing.Size(120, 23);
             this.btnMsgClr.TabIndex = 40;
@@ -480,7 +480,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(834, 432);
+            this.ClientSize = new System.Drawing.Size(834, 416);
             this.Controls.Add(this.btnMsgClr);
             this.Controls.Add(this.pbExample);
             this.Controls.Add(this.txtMsg);
@@ -520,7 +520,9 @@
             this.Controls.Add(this.bcList);
             this.Controls.Add(this.trbBlue);
             this.Controls.Add(this.shapeContainer1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "frmMain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "AutoBroadcast Config Editor";
             this.Load += new System.EventHandler(this.frmMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numInterval)).EndInit();

@@ -59,9 +59,10 @@
             this.ClientSize = new System.Drawing.Size(308, 74);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "frmOpen";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Open / Create a Config!";
-            this.Load += new System.EventHandler(this.frmOpen_Load);
             this.ResumeLayout(false);
 
         }

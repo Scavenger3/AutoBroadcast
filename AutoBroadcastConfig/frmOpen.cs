@@ -58,25 +58,6 @@ namespace AutoBroadcastConfig
                     Dispose();
             }
         }
-
-        private void frmOpen_Load(object sender, EventArgs e)
-        {
-            //Thanks Dethmax
-            string raw;
-            try
-            {
-                raw = new WebClient().DownloadString("https://raw.github.com/Scavenger3/AutoBroadcast/master/Version.txt");
-            }
-            catch (Exception)
-            {
-                return;
-            }
-            string[] list = raw.Split('\n');
-            if (list[1] != "1.0")
-            {
-                MessageBox.Show(string.Format("New Config Editor version: v{0}", list[1]) + Environment.NewLine + "Check the Auto Broadcast thread for downloads");
-            }
-        }
     }
 }
 

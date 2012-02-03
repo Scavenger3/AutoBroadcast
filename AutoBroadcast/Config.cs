@@ -12,6 +12,10 @@ namespace AutoBroadcastConfig
     {
         public aBList writeFile(String file)
         {
+            if (!Directory.Exists(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs")))
+            {
+                Directory.CreateDirectory(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs"));
+            }
             TextWriter tw = new StreamWriter(file);
 
             aBList autoBcs = new aBList();
@@ -30,6 +34,10 @@ namespace AutoBroadcastConfig
 
         public aBList readFile(String file)
         {
+            if (!Directory.Exists(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs")))
+            {
+                Directory.CreateDirectory(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs"));
+            }
             TextReader tr = new StreamReader(file);
             String raw = tr.ReadToEnd();
             tr.Close();
@@ -40,6 +48,10 @@ namespace AutoBroadcastConfig
 
         public void saveFile(String file, aBList lst)
         {
+            if (!Directory.Exists(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs")))
+            {
+                Directory.CreateDirectory(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs"));
+            }
             TextWriter tw = new StreamWriter(file);
 
             tw.Write(JsonConvert.SerializeObject(lst, Formatting.Indented));

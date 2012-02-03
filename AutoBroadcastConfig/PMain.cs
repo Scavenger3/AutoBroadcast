@@ -9,6 +9,7 @@ namespace AutoBroadcastConfig
     {
         public static string path = "";
         public static bool dispos = false;
+        public static bool forced = false;
         
         [STAThread]
         static void Main()
