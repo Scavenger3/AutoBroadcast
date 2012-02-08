@@ -104,15 +104,16 @@ namespace AutoBroadcastConfig
             {
                 try
                 {
-                    int red = int.Parse(txtRed.Text);
-                    if (red > 255)
+                    int Red = int.Parse(txtRed.Text);
+                    if (Red > 255)
                     {
                         MessageBox.Show("This can only be an Interger from 0-255");
                         txtRed.Text = "255";
-                        return;
+                        Red = 255;
                     }
-                    trbRed.Value = red;
-                    ColorValueChangedEvent(ColorRGB.Red, trbRed.Value);
+                    trbRed.Value = Red;
+                    aBroadcasts.AutoBroadcast[BCSel].ColorR = Red;
+                    ColorValueChangedEvent(ColorRGB.Red, Red);
                 }
                 catch (Exception)
                 {
@@ -127,6 +128,10 @@ namespace AutoBroadcastConfig
                         }
                     }
                     txtRed.Text = newtxt;
+                    int newint = 0;
+                    int.TryParse(newtxt, out newint);
+                    aBroadcasts.AutoBroadcast[BCSel].ColorR = newint;
+                    trbRed.Value = newint;
                     return;
                 }
             }
@@ -143,10 +148,11 @@ namespace AutoBroadcastConfig
                     {
                         MessageBox.Show("This can only be an Interger from 0-255");
                         txtGreen.Text = "255";
-                        return;
+                        Green = 255;
                     }
                     trbGreen.Value = Green;
-                    ColorValueChangedEvent(ColorRGB.Green, trbGreen.Value);
+                    aBroadcasts.AutoBroadcast[BCSel].ColorG = Green;
+                    ColorValueChangedEvent(ColorRGB.Green, Green);
                 }
                 catch (Exception)
                 {
@@ -161,6 +167,10 @@ namespace AutoBroadcastConfig
                         }
                     }
                     txtGreen.Text = newtxt;
+                    int newint = 0;
+                    int.TryParse(newtxt, out newint);
+                    aBroadcasts.AutoBroadcast[BCSel].ColorG = newint;
+                    trbGreen.Value = newint;
                     return;
                 }
             }
@@ -177,10 +187,11 @@ namespace AutoBroadcastConfig
                     {
                         MessageBox.Show("This can only be an Interger from 0-255");
                         txtBlue.Text = "255";
-                        return;
+                        Blue = 255;
                     }
                     trbBlue.Value = Blue;
-                    ColorValueChangedEvent(ColorRGB.Blue, trbBlue.Value);
+                    aBroadcasts.AutoBroadcast[BCSel].ColorB = Blue;
+                    ColorValueChangedEvent(ColorRGB.Blue, Blue);
                 }
                 catch (Exception)
                 {
@@ -195,6 +206,10 @@ namespace AutoBroadcastConfig
                         }
                     }
                     txtBlue.Text = newtxt;
+                    int newint = 0;
+                    int.TryParse(newtxt, out newint);
+                    aBroadcasts.AutoBroadcast[BCSel].ColorB = newint;
+                    trbBlue.Value = newint;
                     return;
                 }
             }
@@ -293,7 +308,7 @@ namespace AutoBroadcastConfig
             MSLrl = true;
 
             //Groups:
-            lstGrps.DataSource = aBroadcasts.AutoBroadcast[BCSel].Groups;
+            lstGrps.DataSource = aBroadcasts.AutoBroadcast[BCSel].Groups;            
         }
 
         private void btnSave_Click(object sender, EventArgs e)

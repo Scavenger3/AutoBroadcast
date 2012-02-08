@@ -45,3 +45,14 @@ C:\Users\42373\Desktop\AutoBroadcastConfig\obj\x86\Debug\GenerateResource.read.1
 C:\Users\42373\Desktop\AutoBroadcastConfig\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\Users\42373\Desktop\Compiled\AutoBroadcastConfig.exe
 C:\Users\42373\Desktop\Compiled\AutoBroadcastConfig.pdb
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\Compiled\AutoBroadcastConfig.exe.config
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\Compiled\AutoBroadcastConfig.exe
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\Compiled\AutoBroadcastConfig.pdb
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcastConfig\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.frmMain.resources
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.frmOpen.resources
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.Properties.Resources.resources
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcastConfig\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcastConfig\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.exe
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcastConfig\obj\x86\Debug\AutoBroadcastConfig.pdb

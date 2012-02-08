@@ -18,3 +18,8 @@ C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\Compiled\AutoB
 C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcast\obj\Debug\ResolveAssemblyReference.cache
 C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcast\obj\Debug\AutoBroadcast.dll
 C:\Users\42373\Documents\Programming\TShock Plugins\AutoBroadcast\AutoBroadcast\obj\Debug\AutoBroadcast.pdb
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\Compiled\AutoBroadcast.dll
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\Compiled\AutoBroadcast.pdb
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcast\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcast\obj\Debug\AutoBroadcast.dll
+C:\Users\42373\Desktop\Scavenger3-AutoBroadcast-8b20c54\AutoBroadcast\obj\Debug\AutoBroadcast.pdb

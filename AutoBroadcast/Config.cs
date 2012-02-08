@@ -87,7 +87,7 @@ namespace AutoBroadcastConfig
             this.Messages = Messages;
             this.ColorR = ColorR;
             this.ColorG = ColorG;
-            this.ColorB = ColorG;
+            this.ColorB = ColorB;
             this.Interval = Interval;
             this.Groups = Groups;
         }

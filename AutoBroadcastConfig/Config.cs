@@ -40,10 +40,14 @@ namespace AutoBroadcastConfig
 
         public void saveFile(String file, aBList lst)
         {
-            TextWriter tw = new StreamWriter(file);
+            try
+            {
+                TextWriter tw = new StreamWriter(file);
 
-            tw.Write(JsonConvert.SerializeObject(lst, Formatting.Indented));
-            tw.Close();
+                tw.Write(JsonConvert.SerializeObject(lst, Formatting.Indented));
+                tw.Close();
+            }
+            catch { }
         }
     }
 
@@ -75,7 +79,7 @@ namespace AutoBroadcastConfig
             this.Messages = Messages;
             this.ColorR = ColorR;
             this.ColorG = ColorG;
-            this.ColorB = ColorG;
+            this.ColorB = ColorB;
             this.Interval = Interval;
             this.Groups = Groups;
         }

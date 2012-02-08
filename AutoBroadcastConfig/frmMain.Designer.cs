@@ -83,7 +83,7 @@
             this.bcList.Location = new System.Drawing.Point(12, 43);
             this.bcList.Name = "bcList";
             this.bcList.Size = new System.Drawing.Size(120, 173);
-            this.bcList.TabIndex = 0;
+            this.bcList.TabIndex = 4;
             this.bcList.SelectedIndexChanged += new System.EventHandler(this.bcList_SelectedIndexChanged);
             // 
             // label1
@@ -92,7 +92,7 @@
             this.label1.Location = new System.Drawing.Point(25, 18);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(91, 13);
-            this.label1.TabIndex = 1;
+            this.label1.TabIndex = 29;
             this.label1.Text = "Select Broadcast:";
             // 
             // btnbclAdd
@@ -121,7 +121,7 @@
             this.btnSave.Location = new System.Drawing.Point(25, 347);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(91, 42);
-            this.btnSave.TabIndex = 4;
+            this.btnSave.TabIndex = 22;
             this.btnSave.Text = "Save Config!";
             this.btnSave.UseVisualStyleBackColor = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
@@ -152,7 +152,7 @@
             this.lstMsgs.Location = new System.Drawing.Point(174, 251);
             this.lstMsgs.Name = "lstMsgs";
             this.lstMsgs.Size = new System.Drawing.Size(335, 95);
-            this.lstMsgs.TabIndex = 7;
+            this.lstMsgs.TabIndex = 11;
             this.lstMsgs.SelectedIndexChanged += new System.EventHandler(this.lstMsgs_SelectedIndexChanged);
             // 
             // lstGrps
@@ -161,7 +161,7 @@
             this.lstGrps.Location = new System.Drawing.Point(547, 302);
             this.lstGrps.Name = "lstGrps";
             this.lstGrps.Size = new System.Drawing.Size(133, 69);
-            this.lstGrps.TabIndex = 8;
+            this.lstGrps.TabIndex = 21;
             // 
             // numInterval
             // 
@@ -173,7 +173,7 @@
             0});
             this.numInterval.Name = "numInterval";
             this.numInterval.Size = new System.Drawing.Size(138, 20);
-            this.numInterval.TabIndex = 9;
+            this.numInterval.TabIndex = 7;
             this.numInterval.Value = new decimal(new int[] {
             300,
             0,
@@ -188,7 +188,7 @@
             this.txtRed.MaxLength = 3;
             this.txtRed.Name = "txtRed";
             this.txtRed.Size = new System.Drawing.Size(29, 21);
-            this.txtRed.TabIndex = 11;
+            this.txtRed.TabIndex = 13;
             this.txtRed.Text = "0";
             this.txtRed.TextChanged += new System.EventHandler(this.txtRed_TextChanged);
             // 
@@ -208,7 +208,7 @@
             this.trbBlue.Maximum = 255;
             this.trbBlue.Name = "trbBlue";
             this.trbBlue.Size = new System.Drawing.Size(175, 45);
-            this.trbBlue.TabIndex = 14;
+            this.trbBlue.TabIndex = 16;
             this.trbBlue.TickFrequency = 15;
             this.trbBlue.Scroll += new System.EventHandler(this.trbBlue_Scroll);
             // 
@@ -219,7 +219,7 @@
             this.txtBlue.MaxLength = 3;
             this.txtBlue.Name = "txtBlue";
             this.txtBlue.Size = new System.Drawing.Size(29, 21);
-            this.txtBlue.TabIndex = 13;
+            this.txtBlue.TabIndex = 17;
             this.txtBlue.Text = "0";
             this.txtBlue.TextChanged += new System.EventHandler(this.txtBlue_TextChanged);
             // 
@@ -229,7 +229,7 @@
             this.trbGreen.Maximum = 255;
             this.trbGreen.Name = "trbGreen";
             this.trbGreen.Size = new System.Drawing.Size(175, 45);
-            this.trbGreen.TabIndex = 16;
+            this.trbGreen.TabIndex = 14;
             this.trbGreen.TickFrequency = 15;
             this.trbGreen.Scroll += new System.EventHandler(this.trbGreen_Scroll);
             // 
@@ -249,7 +249,7 @@
             this.txtbclNew.Location = new System.Drawing.Point(13, 283);
             this.txtbclNew.Name = "txtbclNew";
             this.txtbclNew.Size = new System.Drawing.Size(119, 20);
-            this.txtbclNew.TabIndex = 17;
+            this.txtbclNew.TabIndex = 1;
             // 
             // label2
             // 
@@ -257,7 +257,7 @@
             this.label2.Location = new System.Drawing.Point(229, 39);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(89, 13);
-            this.label2.TabIndex = 18;
+            this.label2.TabIndex = 30;
             this.label2.Text = "Broadcast Name:";
             // 
             // label3
@@ -266,7 +266,7 @@
             this.label3.Location = new System.Drawing.Point(229, 136);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(145, 13);
-            this.label3.TabIndex = 19;
+            this.label3.TabIndex = 31;
             this.label3.Text = "Broadcast Interval: (seconds)";
             // 
             // label4
@@ -275,7 +275,7 @@
             this.label4.Location = new System.Drawing.Point(539, 30);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(86, 13);
-            this.label4.TabIndex = 20;
+            this.label4.TabIndex = 33;
             this.label4.Text = "Message Colour:";
             // 
             // label5
@@ -284,7 +284,7 @@
             this.label5.Location = new System.Drawing.Point(511, 69);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(30, 13);
-            this.label5.TabIndex = 21;
+            this.label5.TabIndex = 34;
             this.label5.Text = "Red:";
             // 
             // label6
@@ -293,7 +293,7 @@
             this.label6.Location = new System.Drawing.Point(502, 119);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(39, 13);
-            this.label6.TabIndex = 22;
+            this.label6.TabIndex = 35;
             this.label6.Text = "Green:";
             // 
             // label7
@@ -302,7 +302,7 @@
             this.label7.Location = new System.Drawing.Point(510, 171);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(31, 13);
-            this.label7.TabIndex = 23;
+            this.label7.TabIndex = 36;
             this.label7.Text = "Blue:";
             // 
             // label8
@@ -311,7 +311,7 @@
             this.label8.Location = new System.Drawing.Point(171, 235);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(171, 13);
-            this.label8.TabIndex = 24;
+            this.label8.TabIndex = 32;
             this.label8.Text = "Broadcast Messages: (Maximum 7)";
             // 
             // label9
@@ -320,7 +320,7 @@
             this.label9.Location = new System.Drawing.Point(544, 286);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(95, 13);
-            this.label9.TabIndex = 25;
+            this.label9.TabIndex = 37;
             this.label9.Text = "Broadcast Groups:";
             // 
             // btnHLPName
@@ -328,7 +328,7 @@
             this.btnHLPName.Location = new System.Drawing.Point(376, 55);
             this.btnHLPName.Name = "btnHLPName";
             this.btnHLPName.Size = new System.Drawing.Size(22, 23);
-            this.btnHLPName.TabIndex = 26;
+            this.btnHLPName.TabIndex = 23;
             this.btnHLPName.Text = "?";
             this.btnHLPName.UseVisualStyleBackColor = true;
             this.btnHLPName.Click += new System.EventHandler(this.btnHLPName_Click);
@@ -338,7 +338,7 @@
             this.btnHLPEnabled.Location = new System.Drawing.Point(303, 95);
             this.btnHLPEnabled.Name = "btnHLPEnabled";
             this.btnHLPEnabled.Size = new System.Drawing.Size(22, 23);
-            this.btnHLPEnabled.TabIndex = 27;
+            this.btnHLPEnabled.TabIndex = 24;
             this.btnHLPEnabled.Text = "?";
             this.btnHLPEnabled.UseVisualStyleBackColor = true;
             this.btnHLPEnabled.Click += new System.EventHandler(this.btnHLPEnabled_Click);
@@ -348,7 +348,7 @@
             this.btnHLPInterval.Location = new System.Drawing.Point(376, 158);
             this.btnHLPInterval.Name = "btnHLPInterval";
             this.btnHLPInterval.Size = new System.Drawing.Size(22, 23);
-            this.btnHLPInterval.TabIndex = 28;
+            this.btnHLPInterval.TabIndex = 25;
             this.btnHLPInterval.Text = "?";
             this.btnHLPInterval.UseVisualStyleBackColor = true;
             this.btnHLPInterval.Click += new System.EventHandler(this.btnHLPInterval_Click);
@@ -358,7 +358,7 @@
             this.btnHLPMessages.Location = new System.Drawing.Point(348, 225);
             this.btnHLPMessages.Name = "btnHLPMessages";
             this.btnHLPMessages.Size = new System.Drawing.Size(22, 23);
-            this.btnHLPMessages.TabIndex = 29;
+            this.btnHLPMessages.TabIndex = 26;
             this.btnHLPMessages.Text = "?";
             this.btnHLPMessages.UseVisualStyleBackColor = true;
             this.btnHLPMessages.Click += new System.EventHandler(this.btnHLPMessages_Click);
@@ -368,7 +368,7 @@
             this.btnHLPColor.Location = new System.Drawing.Point(631, 25);
             this.btnHLPColor.Name = "btnHLPColor";
             this.btnHLPColor.Size = new System.Drawing.Size(22, 23);
-            this.btnHLPColor.TabIndex = 30;
+            this.btnHLPColor.TabIndex = 27;
             this.btnHLPColor.Text = "?";
             this.btnHLPColor.UseVisualStyleBackColor = true;
             this.btnHLPColor.Click += new System.EventHandler(this.btnHLPColor_Click);
@@ -378,7 +378,7 @@
             this.btnHLPGroups.Location = new System.Drawing.Point(645, 276);
             this.btnHLPGroups.Name = "btnHLPGroups";
             this.btnHLPGroups.Size = new System.Drawing.Size(20, 23);
-            this.btnHLPGroups.TabIndex = 31;
+            this.btnHLPGroups.TabIndex = 28;
             this.btnHLPGroups.Text = "?";
             this.btnHLPGroups.UseVisualStyleBackColor = true;
             this.btnHLPGroups.Click += new System.EventHandler(this.btnHLPGroups_Click);
@@ -388,14 +388,14 @@
             this.txtGrpAdd.Location = new System.Drawing.Point(687, 347);
             this.txtGrpAdd.Name = "txtGrpAdd";
             this.txtGrpAdd.Size = new System.Drawing.Size(119, 20);
-            this.txtGrpAdd.TabIndex = 34;
+            this.txtGrpAdd.TabIndex = 18;
             // 
             // btnGrpRem
             // 
             this.btnGrpRem.Location = new System.Drawing.Point(686, 286);
             this.btnGrpRem.Name = "btnGrpRem";
             this.btnGrpRem.Size = new System.Drawing.Size(120, 23);
-            this.btnGrpRem.TabIndex = 33;
+            this.btnGrpRem.TabIndex = 20;
             this.btnGrpRem.Text = "Remove Selected";
             this.btnGrpRem.UseVisualStyleBackColor = true;
             this.btnGrpRem.Click += new System.EventHandler(this.btnGrpRem_Click);
@@ -405,7 +405,7 @@
             this.btnGrpAdd.Location = new System.Drawing.Point(686, 315);
             this.btnGrpAdd.Name = "btnGrpAdd";
             this.btnGrpAdd.Size = new System.Drawing.Size(120, 23);
-            this.btnGrpAdd.TabIndex = 32;
+            this.btnGrpAdd.TabIndex = 19;
             this.btnGrpAdd.Text = "Add New:";
             this.btnGrpAdd.UseVisualStyleBackColor = true;
             this.btnGrpAdd.Click += new System.EventHandler(this.btnGrpAdd_Click);
@@ -420,7 +420,7 @@
             this.rectangleShape2,
             this.rectangleShape1});
             this.shapeContainer1.Size = new System.Drawing.Size(834, 416);
-            this.shapeContainer1.TabIndex = 35;
+            this.shapeContainer1.TabIndex = 0;
             this.shapeContainer1.TabStop = false;
             // 
             // rectangleShape3
@@ -446,14 +446,14 @@
             this.txtMsg.Location = new System.Drawing.Point(174, 381);
             this.txtMsg.Name = "txtMsg";
             this.txtMsg.Size = new System.Drawing.Size(335, 20);
-            this.txtMsg.TabIndex = 38;
+            this.txtMsg.TabIndex = 8;
             // 
             // btnMsgEdit
             // 
             this.btnMsgEdit.Location = new System.Drawing.Point(174, 352);
             this.btnMsgEdit.Name = "btnMsgEdit";
             this.btnMsgEdit.Size = new System.Drawing.Size(120, 23);
-            this.btnMsgEdit.TabIndex = 37;
+            this.btnMsgEdit.TabIndex = 9;
             this.btnMsgEdit.Text = "Edit Selected:";
             this.btnMsgEdit.UseVisualStyleBackColor = true;
             this.btnMsgEdit.Click += new System.EventHandler(this.btnMsgEdit_Click);
@@ -471,7 +471,7 @@
             this.btnMsgClr.Location = new System.Drawing.Point(300, 352);
             this.btnMsgClr.Name = "btnMsgClr";
             this.btnMsgClr.Size = new System.Drawing.Size(120, 23);
-            this.btnMsgClr.TabIndex = 40;
+            this.btnMsgClr.TabIndex = 10;
             this.btnMsgClr.Text = "Clear Selected";
             this.btnMsgClr.UseVisualStyleBackColor = true;
             this.btnMsgClr.Click += new System.EventHandler(this.btnMsgClr_Click);
