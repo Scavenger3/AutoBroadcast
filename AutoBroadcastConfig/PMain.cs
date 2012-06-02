@@ -5,18 +5,18 @@ using System.Windows.Forms;
 
 namespace AutoBroadcastConfig
 {
-    static class PMain
-    {
-        public static string path = "";
-        public static bool dispos = false;
-        public static bool forced = false;
-        
-        [STAThread]
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmOpen());
-        }
-    }
+	static class PMain
+	{
+		public static string path = "";
+		public static bool dispos = false;
+		public static bool forced = false;
+
+		[STAThread]
+		static void Main()
+		{
+			Application.EnableVisualStyles();
+			Application.SetCompatibleTextRenderingDefault(false);
+			Application.Run(new frmOpen());
+		}
+	}
 }
