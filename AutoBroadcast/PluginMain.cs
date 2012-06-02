@@ -138,7 +138,6 @@ namespace AutoBroadcast
 				Broadcast = DateTime.UtcNow;
 				for (int i = 0; i < TTNext.Count; i++)
 				{
-					TShock.Utils.Broadcast(TTNext[i].ToString());
 					TTNext[i]--;
 				}
 				int v = 0;
