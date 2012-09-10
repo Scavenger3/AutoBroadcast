@@ -108,24 +108,28 @@ namespace AutoBroadcast
 			if ((DateTime.UtcNow - Broadcast).TotalMilliseconds >= 1000)
 			{
 				Broadcast = DateTime.UtcNow;
-				for (int i = 0; i < TTNext.Count; i++)
+				try
 				{
-					TTNext[i]--;
-				}
-				int v = 0;
-				foreach (aBc bc in aBroadcasts.AutoBroadcast)
-				{
-					if (bc.Enabled && TTNext[v] < 1)
+					for (int i = 0; i < TTNext.Count; i++)
 					{
-						if (bc.Groups.Count < 1)
-							bctoAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
-						else
-							bctoGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
-
-						TTNext[v] = bc.Interval;
+						TTNext[i]--;
 					}
-					v++;
+					int v = 0;
+					foreach (aBc bc in aBroadcasts.AutoBroadcast)
+					{
+						if (bc.Enabled && TTNext[v] < 1)
+						{
+							if (bc.Groups.Count < 1)
+								bctoAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+							else
+								bctoGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+
+							TTNext[v] = bc.Interval;
+						}
+						v++;
+					}
 				}
+				catch { }
 			}
 		}
 		#endregion
