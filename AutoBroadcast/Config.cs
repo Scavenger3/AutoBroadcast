@@ -20,7 +20,7 @@ namespace AutoBroadcastConfig
 
             aBList autoBcs = new aBList();
 
-            List<string> defMessages = new List<string> { "", "", "", "", "", "", "" };
+            List<string> defMessages = new List<string> { };
             List<string> defGroups = new List<string> { };
             aBc new1 = new aBc("Broadcast 1", false, defMessages, 255, 255, 255, 300, defGroups);
 

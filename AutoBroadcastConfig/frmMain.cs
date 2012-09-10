@@ -234,7 +234,7 @@ namespace AutoBroadcastConfig
 
 		private void btnHLPMessages_Click(object sender, EventArgs e)
 		{
-			MessageBox.Show("This is the actual message text that will be broadcasted. Terraria can only show 7 Lines at once, so the maximum is 7.", "Messages");
+			MessageBox.Show("This is the actual message text that will be broadcasted. if the text starts wit a slash, It will be treated as a command and executed by the server.", "Messages");
 		}
 
 		private void btnHLPColor_Click(object sender, EventArgs e)
@@ -298,15 +298,15 @@ namespace AutoBroadcastConfig
 			txtRed.Text = aBroadcasts.AutoBroadcast[BCSel].ColorR.ToString();
 			txtGreen.Text = aBroadcasts.AutoBroadcast[BCSel].ColorG.ToString();
 			txtBlue.Text = aBroadcasts.AutoBroadcast[BCSel].ColorB.ToString();
-
+			
 			//Messages:
 			MSLrl = false;
 			lstMsgs.DataSource = aBroadcasts.AutoBroadcast[BCSel].Messages;
 			int MsgSel = lstMsgs.SelectedIndex;
-			if (MsgSel != -1 || MsgSel < 8)
+			if (MsgSel > -1 && MsgSel <= aBroadcasts.AutoBroadcast[BCSel].Messages.Count)
 				txtMsg.Text = aBroadcasts.AutoBroadcast[BCSel].Messages[MsgSel];
 			MSLrl = true;
-
+			
 			//Groups:
 			lstGrps.DataSource = aBroadcasts.AutoBroadcast[BCSel].Groups;
 		}
@@ -442,7 +442,7 @@ namespace AutoBroadcastConfig
 				MSLrl = false;
 				lstMsgs.DataSource = aBroadcasts.AutoBroadcast[BCSel].Messages;
 				int MsgSel = lstMsgs.SelectedIndex;
-				if (MsgSel != -1 || MsgSel < 8)
+				if (MsgSel > -1 && MsgSel <= aBroadcasts.AutoBroadcast[BCSel].Messages.Count)
 					txtMsg.Text = aBroadcasts.AutoBroadcast[BCSel].Messages[MsgSel];
 				MSLrl = true;
 
@@ -518,12 +518,12 @@ namespace AutoBroadcastConfig
 			if (MSLrl)
 			{
 				int MsgSel = lstMsgs.SelectedIndex;
-				if (BCSel == -1 || BCSel >= BCList.Count)
+				if (BCSel < 0 || BCSel >= BCList.Count)
 				{
 					MessageBox.Show("Selected Broadcast is invalid!", "Error:");
 					return;
 				}
-				else if (MsgSel == -1 || MsgSel > 7)
+				else if (MsgSel < 0)
 				{
 					MessageBox.Show("Selected Message is invalid!", "Error:");
 					return;
@@ -535,22 +535,22 @@ namespace AutoBroadcastConfig
 			}
 		}
 
-		private void btnMsgClr_Click(object sender, EventArgs e)
+		private void btnMsgRm_Click(object sender, EventArgs e)
 		{
 			int MsgSel = lstMsgs.SelectedIndex;
-			if (BCSel == -1 || BCSel >= BCList.Count)
+			if (BCSel < 0 || BCSel >= BCList.Count)
 			{
 				MessageBox.Show("Selected Broadcast is invalid!", "Error:");
 				return;
 			}
-			else if (MsgSel == -1 || MsgSel > 7)
+			else if (MsgSel < 0)
 			{
 				MessageBox.Show("Selected Message is invalid!", "Error:");
 				return;
 			}
 			else
 			{
-				aBroadcasts.AutoBroadcast[BCSel].Messages[MsgSel] = "";
+				aBroadcasts.AutoBroadcast[BCSel].Messages.RemoveAt(MsgSel);
 				MSLrl = false;
 				lstMsgs.DataSource = null;
 				lstMsgs.DataSource = aBroadcasts.AutoBroadcast[BCSel].Messages;
@@ -561,12 +561,12 @@ namespace AutoBroadcastConfig
 		private void btnMsgEdit_Click(object sender, EventArgs e)
 		{
 			int MsgSel = lstMsgs.SelectedIndex;
-			if (BCSel == -1 || BCSel >= BCList.Count)
+			if (BCSel < 0 || BCSel >= BCList.Count)
 			{
 				MessageBox.Show("Selected Broadcast is invalid!", "Error:");
 				return;
 			}
-			else if (MsgSel == -1 || MsgSel > 7)
+			else if (MsgSel < 0)
 			{
 				MessageBox.Show("Selected Message is invalid!", "Error:");
 				return;
@@ -582,6 +582,25 @@ namespace AutoBroadcastConfig
 			}
 		}
 		#endregion
+
+		private void btnMsgAdd_Click(object sender, EventArgs e)
+		{
+			int MsgSel = lstMsgs.SelectedIndex;
+			if (BCSel < 0 || BCSel >= BCList.Count)
+			{
+				MessageBox.Show("Selected Broadcast is invalid!", "Error:");
+				return;
+			}
+			else
+			{
+				aBroadcasts.AutoBroadcast[BCSel].Messages.Add(txtMsg.Text);
+				txtMsg.Text = "";
+				MSLrl = false;
+				lstMsgs.DataSource = null;
+				lstMsgs.DataSource = aBroadcasts.AutoBroadcast[BCSel].Messages;
+				MSLrl = true;
+			}
+		}
 
 	}
 }

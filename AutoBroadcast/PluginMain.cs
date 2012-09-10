@@ -20,8 +20,6 @@ namespace AutoBroadcast
 
 		public static DateTime Broadcast = DateTime.UtcNow;
 
-		public static List<abcPlayer> abcPlayers = new List<abcPlayer>();
-
 		public override string Name
 		{
 			get { return "AutoBroadcast"; }
@@ -34,19 +32,17 @@ namespace AutoBroadcast
 
 		public override string Description
 		{
-			get { return "Automatically Broadcast a Message every X seconds"; }
+			get { return "Automatically Broadcast a Message / Command every X seconds"; }
 		}
 
 		public override Version Version
 		{
-			get { return new Version("1.4.2"); }
+			get { return new Version("1.4.3"); }
 		}
 
 		public override void Initialize()
 		{
 			GameHooks.Initialize += OnInitialize;
-			NetHooks.GreetPlayer += OnGreetPlayer;
-			ServerHooks.Leave += OnLeave;
 			GameHooks.Update += OnUpdate;
 		}
 
@@ -55,15 +51,12 @@ namespace AutoBroadcast
 			if (disposing)
 			{
 				GameHooks.Initialize -= OnInitialize;
-				NetHooks.GreetPlayer -= OnGreetPlayer;
-				ServerHooks.Leave -= OnLeave;
 				GameHooks.Update -= OnUpdate;
 			}
 			base.Dispose(disposing);
 		}
 
-		public AutoBroadcast(Main game)
-			: base(game)
+		public AutoBroadcast(Main game) : base(game)
 		{
 			Order = 4;
 			savepath = Path.Combine(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs/AutoBroadcastConfig.json"));
@@ -107,27 +100,6 @@ namespace AutoBroadcast
 
 			Commands.ChatCommands.Add(new Command("abroadcast", autobc, "autobc"));
 		}
-
-		public void OnGreetPlayer(int who, HandledEventArgs e)
-		{
-			lock (abcPlayers)
-				abcPlayers.Add(new abcPlayer(who));
-		}
-
-		public void OnLeave(int ply)
-		{
-			lock (abcPlayers)
-			{
-				for (int i = 0; i < abcPlayers.Count; i++)
-				{
-					if (abcPlayers[i].Index == ply)
-					{
-						abcPlayers.RemoveAt(i);
-						break;
-					}
-				}
-			}
-		}
 		#endregion
 
 		#region Timer
@@ -143,17 +115,14 @@ namespace AutoBroadcast
 				int v = 0;
 				foreach (aBc bc in aBroadcasts.AutoBroadcast)
 				{
-					if (bc.Enabled)
+					if (bc.Enabled && TTNext[v] < 1)
 					{
-						if (TTNext[v] < 1)
-						{
-							if (bc.Groups.Count < 1)
-								bctoAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
-							else
-								bctoGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+						if (bc.Groups.Count < 1)
+							bctoAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+						else
+							bctoGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
 
-							TTNext[v] = bc.Interval;
-						}
+						TTNext[v] = bc.Interval;
 					}
 					v++;
 				}
@@ -166,13 +135,16 @@ namespace AutoBroadcast
 		{
 			foreach (string msg in messages)
 			{
-				if (msg != "")
+				if (msg.StartsWith("/"))
 				{
-					foreach (abcPlayer player in abcPlayers)
+					Commands.HandleCommand(TSPlayer.Server, msg);
+				}
+				else if (msg != null)
+				{
+					foreach (TSPlayer player in TShock.Players)
 					{
-						foreach (string grp in bcgroup)
+						if (bcgroup.Contains(player.Group.Name))
 						{
-							if (player.TSPlayer.Group.Name == grp)
 								player.SendMessage(msg, colorr, colorg, colorb);
 						}
 					}
@@ -184,10 +156,13 @@ namespace AutoBroadcast
 		{
 			foreach (string msg in messages)
 			{
-				if (msg != "")
+				if (msg.StartsWith("/"))
 				{
-					foreach (abcPlayer player in abcPlayers)
-						player.SendMessage(msg, colorr, colorg, colorb);
+					Commands.HandleCommand(TSPlayer.Server, msg);
+				}
+				else if (msg != null)
+				{
+					TSPlayer.All.SendMessage(msg, colorr, colorg, colorb);
 				}
 			}
 		}
@@ -233,22 +208,4 @@ namespace AutoBroadcast
 		}
 		#endregion Commands
 	}
-
-	#region abcPlayerClass
-	public class abcPlayer
-	{
-		public int Index { get; set; }
-		public TSPlayer TSPlayer { get { return TShock.Players[Index]; } }
-
-		public abcPlayer(int index)
-		{
-			Index = index;
-		}
-
-		public void SendMessage(string message, int colorR, int colorG, int colorB)
-		{
-			NetMessage.SendData((int)PacketTypes.ChatText, Index, -1, message, 255, colorR, colorG, colorB);
-		}
-	}
-	#endregion
 }

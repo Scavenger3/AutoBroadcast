@@ -69,7 +69,8 @@
 			this.txtMsg = new System.Windows.Forms.TextBox();
 			this.btnMsgEdit = new System.Windows.Forms.Button();
 			this.pbExample = new System.Windows.Forms.PictureBox();
-			this.btnMsgClr = new System.Windows.Forms.Button();
+			this.btnMsgRm = new System.Windows.Forms.Button();
+			this.btnMsgAdd = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.numInterval)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.trbRed)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.trbBlue)).BeginInit();
@@ -310,9 +311,9 @@
 			this.label8.AutoSize = true;
 			this.label8.Location = new System.Drawing.Point(171, 235);
 			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(171, 13);
+			this.label8.Size = new System.Drawing.Size(109, 13);
 			this.label8.TabIndex = 32;
-			this.label8.Text = "Broadcast Messages: (Maximum 7)";
+			this.label8.Text = "Broadcast Messages:";
 			// 
 			// label9
 			// 
@@ -355,7 +356,7 @@
 			// 
 			// btnHLPMessages
 			// 
-			this.btnHLPMessages.Location = new System.Drawing.Point(348, 225);
+			this.btnHLPMessages.Location = new System.Drawing.Point(286, 225);
 			this.btnHLPMessages.Name = "btnHLPMessages";
 			this.btnHLPMessages.Size = new System.Drawing.Size(22, 23);
 			this.btnHLPMessages.TabIndex = 26;
@@ -450,9 +451,9 @@
 			// 
 			// btnMsgEdit
 			// 
-			this.btnMsgEdit.Location = new System.Drawing.Point(174, 352);
+			this.btnMsgEdit.Location = new System.Drawing.Point(285, 352);
 			this.btnMsgEdit.Name = "btnMsgEdit";
-			this.btnMsgEdit.Size = new System.Drawing.Size(120, 23);
+			this.btnMsgEdit.Size = new System.Drawing.Size(103, 23);
 			this.btnMsgEdit.TabIndex = 9;
 			this.btnMsgEdit.Text = "Edit Selected:";
 			this.btnMsgEdit.UseVisualStyleBackColor = true;
@@ -466,22 +467,33 @@
 			this.pbExample.TabIndex = 39;
 			this.pbExample.TabStop = false;
 			// 
-			// btnMsgClr
+			// btnMsgRm
 			// 
-			this.btnMsgClr.Location = new System.Drawing.Point(300, 352);
-			this.btnMsgClr.Name = "btnMsgClr";
-			this.btnMsgClr.Size = new System.Drawing.Size(120, 23);
-			this.btnMsgClr.TabIndex = 10;
-			this.btnMsgClr.Text = "Clear Selected";
-			this.btnMsgClr.UseVisualStyleBackColor = true;
-			this.btnMsgClr.Click += new System.EventHandler(this.btnMsgClr_Click);
+			this.btnMsgRm.Location = new System.Drawing.Point(407, 352);
+			this.btnMsgRm.Name = "btnMsgRm";
+			this.btnMsgRm.Size = new System.Drawing.Size(102, 23);
+			this.btnMsgRm.TabIndex = 10;
+			this.btnMsgRm.Text = "Remove Selected";
+			this.btnMsgRm.UseVisualStyleBackColor = true;
+			this.btnMsgRm.Click += new System.EventHandler(this.btnMsgRm_Click);
+			// 
+			// btnMsgAdd
+			// 
+			this.btnMsgAdd.Location = new System.Drawing.Point(174, 352);
+			this.btnMsgAdd.Name = "btnMsgAdd";
+			this.btnMsgAdd.Size = new System.Drawing.Size(88, 23);
+			this.btnMsgAdd.TabIndex = 40;
+			this.btnMsgAdd.Text = "Add New:";
+			this.btnMsgAdd.UseVisualStyleBackColor = true;
+			this.btnMsgAdd.Click += new System.EventHandler(this.btnMsgAdd_Click);
 			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(834, 416);
-			this.Controls.Add(this.btnMsgClr);
+			this.Controls.Add(this.btnMsgAdd);
+			this.Controls.Add(this.btnMsgRm);
 			this.Controls.Add(this.pbExample);
 			this.Controls.Add(this.txtMsg);
 			this.Controls.Add(this.btnMsgEdit);
@@ -578,6 +590,7 @@
 		private System.Windows.Forms.TextBox txtMsg;
 		private System.Windows.Forms.Button btnMsgEdit;
 		private System.Windows.Forms.PictureBox pbExample;
-		private System.Windows.Forms.Button btnMsgClr;
+		private System.Windows.Forms.Button btnMsgRm;
+		private System.Windows.Forms.Button btnMsgAdd;
 	}
 }
