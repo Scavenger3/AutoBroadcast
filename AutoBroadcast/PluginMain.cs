@@ -143,6 +143,7 @@ namespace AutoBroadcast
 				{
 					foreach (TSPlayer player in TShock.Players)
 					{
+						if (player == null) continue;
 						if (bcgroup.Contains(player.Group.Name))
 						{
 								player.SendMessage(msg, colorr, colorg, colorb);
