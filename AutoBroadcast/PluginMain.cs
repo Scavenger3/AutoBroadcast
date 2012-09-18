@@ -37,7 +37,7 @@ namespace AutoBroadcast
 
 		public override Version Version
 		{
-			get { return new Version("1.4.3"); }
+			get { return new Version("1.4.4"); }
 		}
 
 		public override void Initialize()
@@ -114,15 +114,17 @@ namespace AutoBroadcast
 					{
 						TTNext[i]--;
 					}
+					if (aBroadcasts.AutoBroadcast == null) return;
 					int v = 0;
 					foreach (aBc bc in aBroadcasts.AutoBroadcast)
 					{
+						if (bc == null) continue;
 						if (bc.Enabled && TTNext[v] < 1)
 						{
 							if (bc.Groups.Count < 1)
-								bctoAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+								BroadcastToAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
 							else
-								bctoGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+								BroadcastToGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
 
 							TTNext[v] = bc.Interval;
 						}
@@ -135,41 +137,53 @@ namespace AutoBroadcast
 		#endregion
 
 		#region Methods
-		public static void bctoGroup(List<string> bcgroup, List<string> messages, byte colorr, byte colorg, byte colorb)
+		public static void BroadcastToGroup(List<string> bcgroup, List<string> messages, byte colorr, byte colorg, byte colorb)
 		{
-			foreach (string msg in messages)
+			try
 			{
-				if (msg.StartsWith("/"))
+				if (bcgroup == null || messages == null) return;
+				foreach (string msg in messages)
 				{
-					Commands.HandleCommand(TSPlayer.Server, msg);
-				}
-				else if (msg != null)
-				{
-					foreach (TSPlayer player in TShock.Players)
+					if (msg == null) continue;
+					if (msg.StartsWith("/"))
 					{
-						if (player == null) continue;
-						if (bcgroup.Contains(player.Group.Name))
+						Commands.HandleCommand(TSPlayer.Server, msg);
+					}
+					else
+					{
+						foreach (TSPlayer player in TShock.Players)
 						{
+							if (player == null) continue;
+							if (bcgroup.Contains(player.Group.Name))
+							{
 								player.SendMessage(msg, colorr, colorg, colorb);
+							}
 						}
 					}
 				}
 			}
+			catch { }
 		}
 
-		public static void bctoAll(List<string> messages, byte colorr, byte colorg, byte colorb)
+		public static void BroadcastToAll(List<string> messages, byte colorr, byte colorg, byte colorb)
 		{
-			foreach (string msg in messages)
+			try
 			{
-				if (msg.StartsWith("/"))
+				if (messages == null) return;
+				foreach (string msg in messages)
 				{
-					Commands.HandleCommand(TSPlayer.Server, msg);
-				}
-				else if (msg != null)
-				{
-					TSPlayer.All.SendMessage(msg, colorr, colorg, colorb);
+					if (msg == null) continue;
+					if (msg.StartsWith("/"))
+					{
+						Commands.HandleCommand(TSPlayer.Server, msg);
+					}
+					else
+					{
+						TSPlayer.All.SendMessage(msg, colorr, colorg, colorb);
+					}
 				}
 			}
+			catch { }
 		}
 		#endregion
 
