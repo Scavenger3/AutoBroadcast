@@ -32,7 +32,7 @@ namespace AutoBroadcastConfig
 				frmMain next = new frmMain();
 				this.Hide();
 				next.ShowDialog();
-				if (PMain.dispos == true)
+				if (PMain.dispose == true)
 					Dispose();
 			}
 		}
@@ -55,7 +55,7 @@ namespace AutoBroadcastConfig
 				frmMain next = new frmMain();
 				this.Hide();
 				next.ShowDialog();
-				if (PMain.dispos == true)
+				if (PMain.dispose == true)
 					Dispose();
 			}
 		}

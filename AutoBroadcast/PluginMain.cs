@@ -8,6 +8,7 @@ using Hooks;
 using System.ComponentModel;
 using AutoBroadcastConfig;
 using System.Net;
+using System.Reflection;
 
 namespace AutoBroadcast
 {
@@ -15,8 +16,8 @@ namespace AutoBroadcast
 	public class AutoBroadcast : TerrariaPlugin
 	{
 		public static aBList aBroadcasts;
-		public static String savepath = "";
-		public static List<int> TTNext = new List<int>();
+		public static String savepath = String.Empty;
+		public static List<int> IntervalCooldown = new List<int>();
 
 		public static DateTime Broadcast = DateTime.UtcNow;
 
@@ -37,7 +38,7 @@ namespace AutoBroadcast
 
 		public override Version Version
 		{
-			get { return new Version("1.4.4"); }
+			get { return Assembly.GetExecutingAssembly().GetName().Version; }
 		}
 
 		public override void Initialize()
@@ -59,17 +60,17 @@ namespace AutoBroadcast
 		public AutoBroadcast(Main game) : base(game)
 		{
 			Order = 4;
-			savepath = Path.Combine(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs/AutoBroadcastConfig.json"));
+			savepath = Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs", "AutoBroadcastConfig.json");
 
 			ConfR reader = new ConfR();
 			if (File.Exists(savepath))
 			{
-				aBroadcasts = reader.readFile(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs/AutoBroadcastConfig.json"));
+				aBroadcasts = reader.readFile(savepath);
 				Console.WriteLine(aBroadcasts.AutoBroadcast.Count + " Broadcasts have been loaded.");
 			}
 			else
 			{
-				aBroadcasts = reader.writeFile(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs/AutoBroadcastConfig.json"));
+				aBroadcasts = reader.writeFile(savepath);
 				Console.WriteLine("Empty Broadcast Config file being created.");
 			}
 		}
@@ -79,24 +80,10 @@ namespace AutoBroadcast
 		{
 			foreach (aBc bc in aBroadcasts.AutoBroadcast)
 			{
-				TTNext.Add(bc.Interval);
+				if (bc == null) continue;
+				IntervalCooldown.Add(bc.Interval);
 			}
 			Broadcast = DateTime.UtcNow;
-
-			bool abroadcast = false;
-			foreach (Group group in TShock.Groups.groups)
-			{
-				if (group.Name != "superadmin")
-				{
-					if (group.HasPermission("abroadcast"))
-						abroadcast = true;
-				}
-			}
-
-			List<string> permlist = new List<string>();
-			if (!abroadcast)
-				permlist.Add("abroadcast");
-			TShock.Groups.AddPermissions("trustedadmin", permlist);
 
 			Commands.ChatCommands.Add(new Command("abroadcast", autobc, "autobc"));
 		}
@@ -110,23 +97,23 @@ namespace AutoBroadcast
 				Broadcast = DateTime.UtcNow;
 				try
 				{
-					for (int i = 0; i < TTNext.Count; i++)
-					{
-						TTNext[i]--;
-					}
 					if (aBroadcasts.AutoBroadcast == null) return;
+					for (int i = 0; i < IntervalCooldown.Count; i++)
+					{
+						IntervalCooldown[i]--;
+					}
 					int v = 0;
 					foreach (aBc bc in aBroadcasts.AutoBroadcast)
 					{
 						if (bc == null) continue;
-						if (bc.Enabled && TTNext[v] < 1)
+						if (bc.Enabled && IntervalCooldown[v] < 1)
 						{
 							if (bc.Groups.Count < 1)
 								BroadcastToAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
 							else
 								BroadcastToGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
 
-							TTNext[v] = bc.Interval;
+							IntervalCooldown[v] = bc.Interval;
 						}
 						v++;
 					}
@@ -153,8 +140,7 @@ namespace AutoBroadcast
 					{
 						foreach (TSPlayer player in TShock.Players)
 						{
-							if (player == null) continue;
-							if (bcgroup.Contains(player.Group.Name))
+							if (player != null && bcgroup.Contains(player.Group.Name))
 							{
 								player.SendMessage(msg, colorr, colorg, colorb);
 							}
@@ -205,11 +191,10 @@ namespace AutoBroadcast
 					ConfR reader = new ConfR();
 					aBroadcasts = reader.readFile(Path.Combine(TShockAPI.TShock.SavePath, "PluginConfigs/AutoBroadcastConfig.json"));
 
-					int v = 0;
 					foreach (aBc bc in aBroadcasts.AutoBroadcast)
 					{
-						TTNext[v] = bc.Interval;
-						v++;
+						if (bc == null) continue;
+						IntervalCooldown.Add(bc.Interval);
 					}
 					args.Player.SendMessage("Settings reloaded from config file!", Color.MediumSeaGreen);
 				}

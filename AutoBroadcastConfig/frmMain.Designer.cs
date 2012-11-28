@@ -168,7 +168,7 @@
 			// 
 			this.numInterval.Location = new System.Drawing.Point(232, 161);
 			this.numInterval.Maximum = new decimal(new int[] {
-            3600,
+            300,
             0,
             0,
             0});

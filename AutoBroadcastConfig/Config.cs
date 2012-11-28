@@ -16,11 +16,7 @@ namespace AutoBroadcastConfig
 
 			aBList autoBcs = new aBList();
 
-			List<string> defMessages = new List<string> { };
-			List<string> defGroups = new List<string> { };
-			aBc new1 = new aBc("Broadcast 1", false, defMessages, 255, 255, 255, 300, defGroups);
-
-			autoBcs.AutoBroadcast.Add(new1);
+			autoBcs.AutoBroadcast.Add(new aBc("Broadcast 1", false, new List<string>(), 255, 255, 255, 300, new List<string>()));
 
 			tw.Write(JsonConvert.SerializeObject(autoBcs, Formatting.Indented));
 			tw.Close();

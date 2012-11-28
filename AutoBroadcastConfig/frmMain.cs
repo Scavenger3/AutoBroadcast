@@ -46,6 +46,7 @@ namespace AutoBroadcastConfig
 			ColorValueChangedEvent += new ColorValueChangedEventHandler(frmMain_ColorValueChangedEvent);
 			ChangePanelColorEvent += new ChangePanelColorEventHandler(frmMain_ChangePanelColorEvent);
 			FormClosing += new System.Windows.Forms.FormClosingEventHandler(frmMain_FormClosing);
+			numInterval.Maximum = int.MaxValue;
 		}
 
 
@@ -261,7 +262,7 @@ namespace AutoBroadcastConfig
 				{
 					MessageBox.Show("You must have at least 1 Broadcast, Please select Create New And ovewrite your current one!", "Error:");
 					PMain.forced = true;
-					PMain.dispos = true;
+					PMain.dispose = true;
 					this.Dispose();
 					this.Close();
 					return;
@@ -336,7 +337,7 @@ namespace AutoBroadcastConfig
 			{
 				if ((MessageBox.Show("Warning, If you have unsaved changes, they will be lost!" + Environment.NewLine + "Are you sure you want to exit?", "Warning!", MessageBoxButtons.YesNo)) == DialogResult.Yes)
 				{
-					PMain.dispos = true;
+					PMain.dispose = true;
 					e.Cancel = false;
 				}
 				else

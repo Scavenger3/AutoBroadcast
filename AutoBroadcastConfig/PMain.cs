@@ -7,8 +7,8 @@ namespace AutoBroadcastConfig
 {
 	static class PMain
 	{
-		public static string path = "";
-		public static bool dispos = false;
+		public static string path = string.Empty;
+		public static bool dispose = false;
 		public static bool forced = false;
 
 		[STAThread]
