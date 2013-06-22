@@ -95,6 +95,13 @@ namespace AutoBroadcast
 		{
 			foreach (aBc bc in aBroadcasts.AutoBroadcast)
 			{
+				if (bc.Groups.Count > 0)
+				{
+					if (!bc.Groups.Contains(TShock.Players[who].Group.Name))
+					{
+						return;
+					}
+				}
 				foreach (string word in bc.TriggerWords)
 				{
 					if (text.Contains(word))
