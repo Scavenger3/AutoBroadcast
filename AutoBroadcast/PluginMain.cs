@@ -45,6 +45,8 @@ namespace AutoBroadcast
 		{
 			GameHooks.Initialize += OnInitialize;
 			GameHooks.Update += OnUpdate;
+			ServerHooks.Chat += OnChat;
+			
 		}
 
 		protected override void Dispose(bool disposing)
@@ -53,6 +55,7 @@ namespace AutoBroadcast
 			{
 				GameHooks.Initialize -= OnInitialize;
 				GameHooks.Update -= OnUpdate;
+				ServerHooks.Chat -= OnChat;
 			}
 			base.Dispose(disposing);
 		}
@@ -86,6 +89,24 @@ namespace AutoBroadcast
 			Broadcast = DateTime.UtcNow;
 
 			Commands.ChatCommands.Add(new Command("abroadcast", autobc, "autobc"));
+		}
+		
+		public void OnChat(messageBuffer buf, int who, string text, HandledEventArgs args)
+		{
+			foreach (aBc bc in aBroadcasts.AutoBroadcast)
+			{
+				foreach (string word in bc.TriggerWords)
+				{
+					if (text.Contains(word))
+					{
+						if (bc.Groups.Count > 0)
+							BroadcastToGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+						else
+							BroadcastToPlayer(who, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+						break;
+					}
+				}
+			}
 		}
 		#endregion
 
@@ -170,6 +191,27 @@ namespace AutoBroadcast
 				}
 			}
 			catch { }
+		}
+		
+		public static void BroadcastToPlayer(int who, List<string> messages, byte colorr, byte colorg, byte colorb)
+		{
+			try 
+			{
+				if (messages == null) return;
+				foreach (string msg in messages)
+				{
+					if (msg == null) continue;
+					if (msg.StartsWith("/"))
+					{
+						Commands.HandleCommand(TSPlayer.Server, msg);
+					}
+					else
+					{
+						TShock.Players[who].SendMessage(msg, colorr, colorg, colorb);
+					}
+				}
+			}
+			catch {}			
 		}
 		#endregion
 
