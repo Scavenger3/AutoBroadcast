@@ -95,11 +95,14 @@ namespace AutoBroadcast
 		{
 			foreach (aBc bc in aBroadcasts.AutoBroadcast)
 			{
+				if (bc == null) continue;
+				if (!bc.Enabled) continue;
+				
 				if (bc.Groups.Count > 0)
 				{
 					if (!bc.Groups.Contains(TShock.Players[who].Group.Name))
 					{
-						return;
+						continue;
 					}
 				}
 				foreach (string word in bc.TriggerWords)
@@ -134,14 +137,17 @@ namespace AutoBroadcast
 					foreach (aBc bc in aBroadcasts.AutoBroadcast)
 					{
 						if (bc == null) continue;
-						if (bc.Enabled && IntervalCooldown[v] < 1)
+						if (bc.Interval != 0)
 						{
-							if (bc.Groups.Count < 1)
-								BroadcastToAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
-							else
-								BroadcastToGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
-
-							IntervalCooldown[v] = bc.Interval;
+							if (bc.Enabled && IntervalCooldown[v] < 1)
+							{
+								if (bc.Groups.Count < 1)
+									BroadcastToAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+								else
+									BroadcastToGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+	
+								IntervalCooldown[v] = bc.Interval;
+							}
 						}
 						v++;
 					}
