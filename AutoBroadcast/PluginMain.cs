@@ -99,7 +99,7 @@ namespace AutoBroadcast
 				{
 					if (!bc.Groups.Contains(TShock.Players[who].Group.Name))
 					{
-						return;
+						continue;
 					}
 				}
 				foreach (string word in bc.TriggerWords)
