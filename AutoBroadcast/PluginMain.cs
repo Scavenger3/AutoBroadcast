@@ -45,6 +45,8 @@ namespace AutoBroadcast
 		{
 			GameHooks.Initialize += OnInitialize;
 			GameHooks.Update += OnUpdate;
+			ServerHooks.Chat += OnChat;
+			
 		}
 
 		protected override void Dispose(bool disposing)
@@ -53,6 +55,7 @@ namespace AutoBroadcast
 			{
 				GameHooks.Initialize -= OnInitialize;
 				GameHooks.Update -= OnUpdate;
+				ServerHooks.Chat -= OnChat;
 			}
 			base.Dispose(disposing);
 		}
@@ -87,6 +90,34 @@ namespace AutoBroadcast
 
 			Commands.ChatCommands.Add(new Command("abroadcast", autobc, "autobc"));
 		}
+		
+		public void OnChat(messageBuffer buf, int who, string text, HandledEventArgs args)
+		{
+			foreach (aBc bc in aBroadcasts.AutoBroadcast)
+			{
+				if (bc == null) continue;
+				if (!bc.Enabled) continue;
+				
+				if (bc.Groups.Count > 0)
+				{
+					if (!bc.Groups.Contains(TShock.Players[who].Group.Name))
+					{
+						continue;
+					}
+				}
+				foreach (string word in bc.TriggerWords)
+				{
+					if (text.Contains(word))
+					{
+						if (bc.Groups.Count > 0)
+							BroadcastToGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+						else
+							BroadcastToPlayer(who, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+						break;
+					}
+				}
+			}
+		}
 		#endregion
 
 		#region Timer
@@ -106,14 +137,17 @@ namespace AutoBroadcast
 					foreach (aBc bc in aBroadcasts.AutoBroadcast)
 					{
 						if (bc == null) continue;
-						if (bc.Enabled && IntervalCooldown[v] < 1)
+						if (bc.Interval != 0)
 						{
-							if (bc.Groups.Count < 1)
-								BroadcastToAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
-							else
-								BroadcastToGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
-
-							IntervalCooldown[v] = bc.Interval;
+							if (bc.Enabled && IntervalCooldown[v] < 1)
+							{
+								if (bc.Groups.Count < 1)
+									BroadcastToAll(bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+								else
+									BroadcastToGroup(bc.Groups, bc.Messages, (byte)bc.ColorR, (byte)bc.ColorG, (byte)bc.ColorB);
+	
+								IntervalCooldown[v] = bc.Interval;
+							}
 						}
 						v++;
 					}
@@ -170,6 +204,27 @@ namespace AutoBroadcast
 				}
 			}
 			catch { }
+		}
+		
+		public static void BroadcastToPlayer(int who, List<string> messages, byte colorr, byte colorg, byte colorb)
+		{
+			try 
+			{
+				if (messages == null) return;
+				foreach (string msg in messages)
+				{
+					if (msg == null) continue;
+					if (msg.StartsWith("/"))
+					{
+						Commands.HandleCommand(TSPlayer.Server, msg);
+					}
+					else
+					{
+						TShock.Players[who].SendMessage(msg, colorr, colorg, colorb);
+					}
+				}
+			}
+			catch {}			
 		}
 		#endregion
 
