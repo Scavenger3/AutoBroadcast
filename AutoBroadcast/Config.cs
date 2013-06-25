@@ -20,7 +20,7 @@ namespace AutoBroadcastConfig
 
             aBList autoBcs = new aBList();
 
-			autoBcs.AutoBroadcast.Add(new aBc("Broadcast 1", false, new List<string>(), 255, 255, 255, 300, new List<string>()));
+            autoBcs.AutoBroadcast.Add(new aBc("Broadcast 1", false, new List<string>(), 255, 255, 255, 300, new List<string>(), new List<string>()));
 
             tw.Write(JsonConvert.SerializeObject(autoBcs, Formatting.Indented));
             tw.Close();
@@ -75,8 +75,9 @@ namespace AutoBroadcastConfig
         public int ColorB;
         public int Interval;
         public List<string> Groups;
+        public List<string> TriggerWords;
 
-        public aBc(string Name, bool Enabled, List<string> Messages, int ColorR, int ColorG, int ColorB, int Interval, List<string> Groups)
+        public aBc(string Name, bool Enabled, List<string> Messages, int ColorR, int ColorG, int ColorB, int Interval, List<string> Groups, List<string> TriggerWords)
         {
             this.Name = Name;
             this.Enabled = Enabled;
@@ -86,6 +87,7 @@ namespace AutoBroadcastConfig
             this.ColorB = ColorB;
             this.Interval = Interval;
             this.Groups = Groups;
+            this.TriggerWords = TriggerWords;
         }
     }
 }
