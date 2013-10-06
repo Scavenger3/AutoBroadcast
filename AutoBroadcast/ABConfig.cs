@@ -10,9 +10,10 @@ namespace AutoBroadcast
     {
 		public Broadcast[] Broadcasts = new Broadcast[0];
 
-		public void Write(string file)
+		public ABConfig Write(string file)
         {
 			File.WriteAllText(file, JsonConvert.SerializeObject(this, Formatting.Indented));
+			return this;
         }
 
 		public static ABConfig Read(string file)

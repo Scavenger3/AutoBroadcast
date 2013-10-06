@@ -48,7 +48,7 @@ namespace AutoBroadcast
 
 			try
 			{
-				Config = ABConfig.Read(ConfigPath);
+				Config = ABConfig.Read(ConfigPath).Write(ConfigPath);
 				Intervals = new int[Broadcasts.Length];
 				for (int i = 0; i < Broadcasts.Length; i++)
 				{
@@ -183,7 +183,7 @@ namespace AutoBroadcast
 					{
 						try
 						{
-							Config = ABConfig.Read(ConfigPath);
+							Config = ABConfig.Read(ConfigPath).Write(ConfigPath);
 							Intervals = new int[Broadcasts.Length];
 							for (int i = 0; i < Broadcasts.Length; i++)
 							{
