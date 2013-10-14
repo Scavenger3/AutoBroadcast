@@ -18,8 +18,6 @@ namespace AutoBroadcast
 
 		public string ConfigPath { get { return Path.Combine(TShock.SavePath, "AutoBroadcastConfig.json"); } }
 		public ABConfig Config = new ABConfig();
-		public Broadcast[] Broadcasts { get { return Config.Broadcasts; } }
-		public int[] Intervals = new int[0];
 		public DateTime LastCheck = DateTime.UtcNow;
 
 		public AutoBroadcast(Main Game) : base(Game) { }
@@ -49,81 +47,116 @@ namespace AutoBroadcast
 			try
 			{
 				Config = ABConfig.Read(ConfigPath).Write(ConfigPath);
-				Intervals = new int[Broadcasts.Length];
-				for (int i = 0; i < Broadcasts.Length; i++)
-				{
-					Intervals[i] = Broadcasts[i].StartDelay;
-				}
 			}
 			catch (Exception ex)
 			{
-				this.Config = new ABConfig();
+				Config = new ABConfig();
 				Log.ConsoleError("[AutoBroadcast] An exception occurred while parsing the AutoBroadcast config!\n{0}".SFormat(ex.ToString()));
 			}
 		}
 
+		public void autobc(CommandArgs args)
+		{
+			try
+			{
+				Config = ABConfig.Read(ConfigPath).Write(ConfigPath);
+				args.Player.SendSuccessMessage("Successfully reloaded AutoBroadcast config!");
+			}
+			catch (Exception ex)
+			{
+				Config = new ABConfig();
+				args.Player.SendWarningMessage("An exception occurred while parsing the AutoBroadcast config! check logs for more details!");
+				Log.Error("[AutoBroadcast] An exception occurred while parsing tbe AutoBroadcast config!\n{0}".SFormat(ex.ToString()));
+			}
+		}
+
+		#region Chat
 		public void OnChat(ServerChatEventArgs args)
 		{
-			foreach (Broadcast broadcast in Broadcasts)
-			{
-				if (broadcast == null || !broadcast.Enabled)
-				{
-					continue;
-				}
+			string[] Groups = new string[0];
+			string[] Messages = new string[0];
+			float[] Colour = new float[0];
+			var PlayerGroup = TShock.Players[args.Who].Group.Name;
 
-				if (broadcast.Groups.Length > 0)
+			lock (Config.Broadcasts)
+				foreach (var broadcast in Config.Broadcasts)
 				{
-					if (TShock.Players[args.Who] != null && !broadcast.Groups.Contains(TShock.Players[args.Who].Group.Name))
+					if (broadcast == null || !broadcast.Enabled ||
+						(broadcast.TriggerToWholeGroup && !broadcast.Groups.Contains(PlayerGroup)))
 					{
 						continue;
 					}
-				}
 
-				foreach (string Word in broadcast.TriggerWords)
-				{
-					if (args.Text.Contains(Word))
+					foreach (string Word in broadcast.TriggerWords)
 					{
-						if (broadcast.TriggerToWholeGroup && broadcast.Groups.Length > 0)
+						if (args.Text.Contains(Word))
 						{
-							BroadcastToGroups(broadcast.Groups, broadcast.Messages, broadcast.ColorRGB);
+							if (broadcast.TriggerToWholeGroup && broadcast.Groups.Length > 0)
+							{
+								Groups = broadcast.Groups;
+							}
+							Messages = broadcast.Messages;
+							Colour = broadcast.ColorRGB;
+							break;
 						}
-						else
-						{
-							BroadcastToPlayer(args.Who, broadcast.Messages, broadcast.ColorRGB);
-						}
-						break;
 					}
 				}
+
+			if (Groups.Length > 0)
+			{
+				BroadcastToGroups(Groups, Messages, Colour);
+			}
+			else
+			{
+				BroadcastToPlayer(args.Who, Messages, Colour);
 			}
 		}
+		#endregion
+
+		#region Update
 		public void OnUpdate(EventArgs args)
 		{
 			if ((DateTime.UtcNow - LastCheck).TotalSeconds >= 1)
 			{
 				LastCheck = DateTime.UtcNow;
-				for (int i = 0; i < Broadcasts.Length; i++)
+				int NumBroadcasts = 0;
+				lock (Config.Broadcasts)
+					NumBroadcasts = Config.Broadcasts.Length;
+				for (int i = 0; i < NumBroadcasts; i++)
 				{
-					if (Broadcasts[i] == null || !Broadcasts[i].Enabled || Broadcasts[i].Interval < 1)
+					string[] Groups = new string[0];
+					string[] Messages = new string[0];
+					float[] Colour = new float[0];
+
+					lock (Config.Broadcasts)
 					{
-						continue;
+						if (Config.Broadcasts[i] == null || !Config.Broadcasts[i].Enabled || Config.Broadcasts[i].Interval < 1)
+						{
+							continue;
+						}
+						if (Config.Broadcasts[i].StartDelay > 0)
+						{
+							Config.Broadcasts[i].StartDelay--;
+							continue;
+						}
+						Config.Broadcasts[i].StartDelay = Config.Broadcasts[i].Interval;// Start Delay used as Interval Countdown
+						Groups = Config.Broadcasts[i].Groups;
+						Messages = Config.Broadcasts[i].Messages;
+						Colour = Config.Broadcasts[i].ColorRGB;
 					}
-					if (Intervals[i] > 0)
+
+					if (Groups.Length > 0)
 					{
-						Intervals[i]--;
-						continue;
-					}
-					if (Broadcasts[i].Groups.Length > 0)
-					{
-						BroadcastToGroups(Broadcasts[i].Groups, Broadcasts[i].Messages, Broadcasts[i].ColorRGB);
+						BroadcastToGroups(Groups, Messages, Colour);
 					}
 					else
 					{
-						BroadcastToAll(Broadcasts[i].Messages, Broadcasts[i].ColorRGB);
+						BroadcastToAll(Messages, Colour);
 					}
-					Intervals[i] = Broadcasts[i].Interval;
 				}
 			}
 		}
+		#endregion
 
 		public static void BroadcastToGroups(string[] Groups, string[] Messages, float[] Colour)
 		{
@@ -135,13 +168,14 @@ namespace AutoBroadcast
 				}
 				else
 				{
-					for (int plr = 0; plr < TShock.Players.Length; plr++)
-					{
-						if (TShock.Players[plr] != null && Groups.Contains(TShock.Players[plr].Group.Name))
+					lock (TShock.Players)
+						foreach (var player in TShock.Players)
 						{
-							TShock.Players[plr].SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
+							if (player != null && Groups.Contains(player.Group.Name))
+							{
+								player.SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
+							}
 						}
-					}
 				}
 			}
 		}
@@ -167,43 +201,10 @@ namespace AutoBroadcast
 				{
 					Commands.HandleCommand(TSPlayer.Server, Line);
 				}
-				else if (TShock.Players[plr] != null)
+				else lock(TShock.Players)
 				{
 					TShock.Players[plr].SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
 				}
-			}
-		}
-
-		public void autobc(CommandArgs args)
-		{
-			string SubCommand = args.Parameters.Count > 0 ? args.Parameters[0].ToLower() : string.Empty;
-			switch (SubCommand)
-			{
-				case "reload":
-					{
-						try
-						{
-							Config = ABConfig.Read(ConfigPath).Write(ConfigPath);
-							Intervals = new int[Broadcasts.Length];
-							for (int i = 0; i < Broadcasts.Length; i++)
-							{
-								Intervals[i] = Broadcasts[i].StartDelay;
-							}
-							args.Player.SendSuccessMessage("Successfully reloaded AutoBroadcast config!");
-						}
-						catch (Exception ex)
-						{
-							Config = new ABConfig();
-							args.Player.SendWarningMessage("An exception occurred while parsing tbe AutoBroadcast config! check logs for more details!");
-							Log.Error("[AutoBroadcast] An exception occurred while parsing tbe AutoBroadcast config!\n{0}".SFormat(ex.ToString()));
-						}
-					}
-					break;
-				default:
-					{
-						args.Player.SendWarningMessage("Usage: /autobc reload - Reloads settings from config file");
-					}
-					break;
 			}
 		}
 	}
