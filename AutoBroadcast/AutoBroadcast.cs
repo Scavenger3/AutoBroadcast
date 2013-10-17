@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Timers;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -18,14 +19,14 @@ namespace AutoBroadcast
 
 		public string ConfigPath { get { return Path.Combine(TShock.SavePath, "AutoBroadcastConfig.json"); } }
 		public ABConfig Config = new ABConfig();
-		public DateTime LastCheck = DateTime.UtcNow;
 
 		public AutoBroadcast(Main Game) : base(Game) { }
 
+		static readonly Timer Update = new System.Timers.Timer(1000);
+
 		public override void Initialize()
 		{
-			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
-			ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
+			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize, -5);
 			ServerApi.Hooks.ServerChat.Register(this, OnChat);
 		}
 
@@ -34,15 +35,15 @@ namespace AutoBroadcast
 			if (Disposing)
 			{
 				ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
-				ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
 				ServerApi.Hooks.ServerChat.Deregister(this, OnChat);
+				Update.Dispose();
 			}
 			base.Dispose(Disposing);
 		}
 
 		public void OnInitialize(EventArgs args)
 		{
-			Commands.ChatCommands.Add(new Command("abroadcast", autobc, "autobc"));
+			Commands.ChatCommands.Add(new Command("abroadcast", AutoBC, "autobc"));
 
 			try
 			{
@@ -53,9 +54,11 @@ namespace AutoBroadcast
 				Config = new ABConfig();
 				Log.ConsoleError("[AutoBroadcast] An exception occurred while parsing the AutoBroadcast config!\n{0}".SFormat(ex.ToString()));
 			}
+			Update.Elapsed += OnUpdate;
+			Update.Start();
 		}
 
-		public void autobc(CommandArgs args)
+		public void AutoBC(CommandArgs args)
 		{
 			try
 			{
@@ -73,6 +76,7 @@ namespace AutoBroadcast
 		#region Chat
 		public void OnChat(ServerChatEventArgs args)
 		{
+			var Start = DateTime.Now;
 			string[] Groups = new string[0];
 			string[] Messages = new string[0];
 			float[] Colour = new float[0];
@@ -81,6 +85,7 @@ namespace AutoBroadcast
 			lock (Config.Broadcasts)
 				foreach (var broadcast in Config.Broadcasts)
 				{
+					if (Timeout(Start)) return;
 					if (broadcast == null || !broadcast.Enabled ||
 						(broadcast.TriggerToWholeGroup && !broadcast.Groups.Contains(PlayerGroup)))
 					{
@@ -89,6 +94,7 @@ namespace AutoBroadcast
 
 					foreach (string Word in broadcast.TriggerWords)
 					{
+						if (Timeout(Start)) return;
 						if (args.Text.Contains(Word))
 						{
 							if (broadcast.TriggerToWholeGroup && broadcast.Groups.Length > 0)
@@ -114,16 +120,17 @@ namespace AutoBroadcast
 		#endregion
 
 		#region Update
-		public void OnUpdate(EventArgs args)
+		public void OnUpdate(object Sender, EventArgs e)
 		{
-			if ((DateTime.UtcNow - LastCheck).TotalSeconds >= 1)
-			{
-				LastCheck = DateTime.UtcNow;
+			if (Main.worldID == 0) return;
+			var Start = DateTime.Now;
+
 				int NumBroadcasts = 0;
 				lock (Config.Broadcasts)
-					NumBroadcasts = Config.Broadcasts.Length;
+				NumBroadcasts = Config.Broadcasts.Length;
 				for (int i = 0; i < NumBroadcasts; i++)
 				{
+					if (Timeout(Start, 1500)) return;
 					string[] Groups = new string[0];
 					string[] Messages = new string[0];
 					float[] Colour = new float[0];
@@ -139,7 +146,7 @@ namespace AutoBroadcast
 							Config.Broadcasts[i].StartDelay--;
 							continue;
 						}
-						Config.Broadcasts[i].StartDelay = Config.Broadcasts[i].Interval;// Start Delay used as Interval Countdown
+						Config.Broadcasts[i].StartDelay = Config.Broadcasts[i].Interval; // Start Delay used as Interval Countdown
 						Groups = Config.Broadcasts[i].Groups;
 						Messages = Config.Broadcasts[i].Messages;
 						Colour = Config.Broadcasts[i].ColorRGB;
@@ -154,7 +161,6 @@ namespace AutoBroadcast
 						BroadcastToAll(Messages, Colour);
 					}
 				}
-			}
 		}
 		#endregion
 
@@ -206,6 +212,17 @@ namespace AutoBroadcast
 					TShock.Players[plr].SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
 				}
 			}
+		}
+
+		public static bool Timeout(DateTime Start, int ms = 1000)
+		{
+			bool ret = (Start - DateTime.Now).TotalMilliseconds > ms;
+			if (ret)
+			{
+				TSPlayer.Server.SendErrorMessage("Hook timeout detected in AutoBroadcast. You might want to report this.");
+				Log.Error("Hook timeout detected in AutoBroadcast. You might want to report this.");
+			}
+			return ret;
 		}
 	}
 }
