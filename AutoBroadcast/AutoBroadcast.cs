@@ -125,42 +125,42 @@ namespace AutoBroadcast
 			if (Main.worldID == 0) return;
 			var Start = DateTime.Now;
 
-				int NumBroadcasts = 0;
+			int NumBroadcasts = 0;
+			lock (Config.Broadcasts)
+			NumBroadcasts = Config.Broadcasts.Length;
+			for (int i = 0; i < NumBroadcasts; i++)
+			{
+				if (Timeout(Start, 1500)) return;
+				string[] Groups = new string[0];
+				string[] Messages = new string[0];
+				float[] Colour = new float[0];
+
 				lock (Config.Broadcasts)
-				NumBroadcasts = Config.Broadcasts.Length;
-				for (int i = 0; i < NumBroadcasts; i++)
 				{
-					if (Timeout(Start, 1500)) return;
-					string[] Groups = new string[0];
-					string[] Messages = new string[0];
-					float[] Colour = new float[0];
-
-					lock (Config.Broadcasts)
+					if (Config.Broadcasts[i] == null || !Config.Broadcasts[i].Enabled || Config.Broadcasts[i].Interval < 1)
 					{
-						if (Config.Broadcasts[i] == null || !Config.Broadcasts[i].Enabled || Config.Broadcasts[i].Interval < 1)
-						{
-							continue;
-						}
-						if (Config.Broadcasts[i].StartDelay > 0)
-						{
-							Config.Broadcasts[i].StartDelay--;
-							continue;
-						}
-						Config.Broadcasts[i].StartDelay = Config.Broadcasts[i].Interval; // Start Delay used as Interval Countdown
-						Groups = Config.Broadcasts[i].Groups;
-						Messages = Config.Broadcasts[i].Messages;
-						Colour = Config.Broadcasts[i].ColorRGB;
+						continue;
 					}
-
-					if (Groups.Length > 0)
+					if (Config.Broadcasts[i].StartDelay > 0)
 					{
-						BroadcastToGroups(Groups, Messages, Colour);
+						Config.Broadcasts[i].StartDelay--;
+						continue;
 					}
-					else
-					{
-						BroadcastToAll(Messages, Colour);
-					}
+					Config.Broadcasts[i].StartDelay = Config.Broadcasts[i].Interval; // Start Delay used as Interval Countdown
+					Groups = Config.Broadcasts[i].Groups;
+					Messages = Config.Broadcasts[i].Messages;
+					Colour = Config.Broadcasts[i].ColorRGB;
 				}
+
+				if (Groups.Length > 0)
+				{
+					BroadcastToGroups(Groups, Messages, Colour);
+				}
+				else
+				{
+					BroadcastToAll(Messages, Colour);
+				}
+			}
 		}
 		#endregion
 
