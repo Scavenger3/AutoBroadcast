@@ -23,6 +23,9 @@ namespace AutoBroadcast
 		public AutoBroadcast(Main Game) : base(Game) { }
 
 		static readonly Timer Update = new System.Timers.Timer(1000);
+		public static DateTime LastUpdate;
+		public static bool DeadLock = false;
+		public const int UpdateTimeout = 500;
 
 		public override void Initialize()
 		{
@@ -123,6 +126,20 @@ namespace AutoBroadcast
 		public void OnUpdate(object Sender, EventArgs e)
 		{
 			if (Main.worldID == 0) return;
+			if (LastUpdate != new DateTime() && Timeout(LastUpdate, 2000, false))
+			{
+				if (!DeadLock)
+				{
+					Console.WriteLine("Message from AutoBroadcast: DeadLock detected.");
+					DeadLock = true;
+				}
+				return;
+			}
+			if (DeadLock)
+			{
+				Console.WriteLine("Message from AutoBroadcast: Deadlock ended.");
+				DeadLock = false;
+			}
 			var Start = DateTime.Now;
 
 			int NumBroadcasts = 0;
@@ -130,7 +147,7 @@ namespace AutoBroadcast
 			NumBroadcasts = Config.Broadcasts.Length;
 			for (int i = 0; i < NumBroadcasts; i++)
 			{
-				if (Timeout(Start, 1500)) return;
+				if (Timeout(Start, UpdateTimeout)) return;
 				string[] Groups = new string[0];
 				string[] Messages = new string[0];
 				float[] Colour = new float[0];
@@ -161,6 +178,7 @@ namespace AutoBroadcast
 					BroadcastToAll(Messages, Colour);
 				}
 			}
+			LastUpdate = DateTime.Now;
 		}
 		#endregion
 
@@ -214,13 +232,13 @@ namespace AutoBroadcast
 			}
 		}
 
-		public static bool Timeout(DateTime Start, int ms = 1000)
+		public static bool Timeout(DateTime Start, int ms = 500, bool warn = true)
 		{
-			bool ret = (Start - DateTime.Now).TotalMilliseconds > ms;
-			if (ret)
+			bool ret = (DateTime.Now - Start).TotalMilliseconds >= ms;
+			if (warn && ret)
 			{
-				TSPlayer.Server.SendErrorMessage("Hook timeout detected in AutoBroadcast. You might want to report this.");
-				Log.Error("Hook timeout detected in AutoBroadcast. You might want to report this.");
+				Console.WriteLine("Hook timeout detected in HousingDisricts. You might want to report this.");
+				Log.Error("Hook timeout detected in HousingDisricts. You might want to report this.");
 			}
 			return ret;
 		}
