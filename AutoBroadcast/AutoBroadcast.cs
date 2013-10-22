@@ -126,7 +126,7 @@ namespace AutoBroadcast
 		public void OnUpdate(object Sender, EventArgs e)
 		{
 			if (Main.worldID == 0) return;
-			if (LastUpdate != new DateTime() && Timeout(LastUpdate, 2000, false))
+			if (LastUpdate != new DateTime() && Timeout(LastUpdate, 3000, false))
 			{
 				if (!DeadLock)
 				{
