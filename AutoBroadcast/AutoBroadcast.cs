@@ -25,7 +25,7 @@ namespace AutoBroadcast
 		static readonly Timer Update = new System.Timers.Timer(1000);
 		public static DateTime LastUpdate;
 		public static bool DeadLock = false;
-		public const int UpdateTimeout = 500;
+		public const int UpdateTimeout = 501;
 
 		public override void Initialize()
 		{
@@ -235,6 +235,7 @@ namespace AutoBroadcast
 		public static bool Timeout(DateTime Start, int ms = 500, bool warn = true)
 		{
 			bool ret = (DateTime.Now - Start).TotalMilliseconds >= ms;
+			if (ms == UpdateTimeout) LastUpdate = DateTime.Now;
 			if (warn && ret)
 			{
 				Console.WriteLine("Hook timeout detected in HousingDisricts. You might want to report this.");
