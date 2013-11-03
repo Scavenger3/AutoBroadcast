@@ -23,8 +23,7 @@ namespace AutoBroadcast
 		public AutoBroadcast(Main Game) : base(Game) { }
 
 		static readonly Timer Update = new System.Timers.Timer(1000);
-		public static DateTime LastUpdate;
-		public static bool DeadLock = false;
+		public static bool ULock = false;
 		public const int UpdateTimeout = 501;
 
 		public override void Initialize()
@@ -126,20 +125,8 @@ namespace AutoBroadcast
 		public void OnUpdate(object Sender, EventArgs e)
 		{
 			if (Main.worldID == 0) return;
-			if (LastUpdate != new DateTime() && Timeout(LastUpdate, 3000, false))
-			{
-				if (!DeadLock)
-				{
-					Console.WriteLine("Message from AutoBroadcast: DeadLock detected.");
-					DeadLock = true;
-				}
-				return;
-			}
-			if (DeadLock)
-			{
-				Console.WriteLine("Message from AutoBroadcast: Deadlock ended.");
-				DeadLock = false;
-			}
+			if (ULock) return;
+			ULock = true;
 			var Start = DateTime.Now;
 
 			int NumBroadcasts = 0;
@@ -178,7 +165,7 @@ namespace AutoBroadcast
 					BroadcastToAll(Messages, Colour);
 				}
 			}
-			LastUpdate = DateTime.Now;
+			ULock = false;
 		}
 		#endregion
 
@@ -235,7 +222,7 @@ namespace AutoBroadcast
 		public static bool Timeout(DateTime Start, int ms = 500, bool warn = true)
 		{
 			bool ret = (DateTime.Now - Start).TotalMilliseconds >= ms;
-			if (ms == UpdateTimeout) LastUpdate = DateTime.Now;
+			if (ms == UpdateTimeout && ret) ULock = false;
 			if (warn && ret)
 			{
 				Console.WriteLine("Hook timeout detected in HousingDisricts. You might want to report this.");
