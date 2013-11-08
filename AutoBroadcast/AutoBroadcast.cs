@@ -38,7 +38,8 @@ namespace AutoBroadcast
 			{
 				ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
 				ServerApi.Hooks.ServerChat.Deregister(this, OnChat);
-				Update.Dispose();
+				Update.Elapsed -= OnUpdate;
+				Update.Stop();
 			}
 			base.Dispose(Disposing);
 		}
@@ -88,11 +89,7 @@ namespace AutoBroadcast
 				foreach (var broadcast in Config.Broadcasts)
 				{
 					if (Timeout(Start)) return;
-					if (broadcast == null || !broadcast.Enabled ||
-						(broadcast.TriggerToWholeGroup && !broadcast.Groups.Contains(PlayerGroup)))
-					{
-						continue;
-					}
+					if (broadcast == null || !broadcast.Enabled || !broadcast.Groups.Contains(PlayerGroup)) continue;
 
 					foreach (string Word in broadcast.TriggerWords)
 					{
@@ -225,8 +222,8 @@ namespace AutoBroadcast
 			if (ms == UpdateTimeout && ret) ULock = false;
 			if (warn && ret)
 			{
-				Console.WriteLine("Hook timeout detected in HousingDisricts. You might want to report this.");
-				Log.Error("Hook timeout detected in HousingDisricts. You might want to report this.");
+				Console.WriteLine("Hook timeout detected in AutoBroadcast. You might want to report this.");
+				Log.Error("Hook timeout detected in AutoBroadcast. You might want to report this.");
 			}
 			return ret;
 		}
