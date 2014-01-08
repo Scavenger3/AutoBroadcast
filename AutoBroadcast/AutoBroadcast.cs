@@ -144,7 +144,6 @@ namespace AutoBroadcast
 						Messages = Config.Broadcasts[i].Messages;
 						Colour = Config.Broadcasts[i].ColorRGB;
 					}
-
 					if (Groups.Length > 0)
 					{
 						BroadcastToGroups(Groups, Messages, Colour);
@@ -182,6 +181,10 @@ namespace AutoBroadcast
             for (int i = 0; i < Messages.Length; i++)
             {
                 var Line = Messages[i];
+
+                if (Line.Contains("%map%") || Line.Contains("%players%"))
+                    Line = parseLine(Line);
+
                 if (Line.StartsWith("/"))
                     Commands.HandleCommand(TSPlayer.Server, Line);
                 else
@@ -193,6 +196,10 @@ namespace AutoBroadcast
             for (int i = 0; i < Messages.Length; i++)
             {
                 var Line = Messages[i];
+
+                if (Line.Contains("%map%") || Line.Contains("%players%"))
+                    Line = parseLine(Line);
+
                 if (Line.StartsWith("/"))
                     Commands.HandleCommand(TSPlayer.Server, Line);
                 else
