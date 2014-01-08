@@ -160,52 +160,83 @@ namespace AutoBroadcast
 
 		public static void BroadcastToGroups(string[] Groups, string[] Messages, float[] Colour)
 		{
-			foreach (string Line in Messages)
-			{
-				if (Line.StartsWith("/"))
-				{
-					Commands.HandleCommand(TSPlayer.Server, Line);
-				}
-				else
-				{
-					lock (TShock.Players)
-						foreach (var player in TShock.Players)
-						{
-							if (player != null && Groups.Contains(player.Group.Name))
-							{
-								player.SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
-							}
-						}
-				}
-			}
+            for (int i = 0; i < Messages.Length; i++)
+            {
+                var Line = Messages[i];
+
+                if (Line.Contains("%map%") || Line.Contains("%players%"))
+                    Line = parseLine(Line);
+                /* The line contains one or both of our two variables, so it gets parsed */
+
+                if (Line.StartsWith("/"))
+                    Commands.HandleCommand(TSPlayer.Server, Line);
+                else
+                    lock (TShock.Players)
+                        foreach (var player in TShock.Players)
+                            if (player != null && Groups.Contains(player.Group.Name))
+                                player.SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
+            }
 		}
 		public static void BroadcastToAll(string[] Messages, float[] Colour)
 		{
-			foreach (string Line in Messages)
-			{
-				if (Line.StartsWith("/"))
-				{
-					Commands.HandleCommand(TSPlayer.Server, Line);
-				}
-				else
-				{
-					TSPlayer.All.SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
-				}
-			}
+            for (int i = 0; i < Messages.Length; i++)
+            {
+                var Line = Messages[i];
+                if (Line.StartsWith("/"))
+                    Commands.HandleCommand(TSPlayer.Server, Line);
+                else
+                    TSPlayer.All.SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
+            }
 		}
-		public static void BroadcastToPlayer(int plr, string[] Messages, float[] Colour)
-		{
-			foreach (string Line in Messages)
-			{
-				if (Line.StartsWith("/"))
-				{
-					Commands.HandleCommand(TSPlayer.Server, Line);
-				}
-				else lock(TShock.Players)
-				{
-					TShock.Players[plr].SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
-				}
-			}
-		}
+        public static void BroadcastToPlayer(int plr, string[] Messages, float[] Colour)
+        {
+            for (int i = 0; i < Messages.Length; i++)
+            {
+                var Line = Messages[i];
+                if (Line.StartsWith("/"))
+                    Commands.HandleCommand(TSPlayer.Server, Line);
+                else
+                    lock (TShock.Players)
+                        TShock.Players[plr].SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
+            }
+        }
+
+
+        public static string parseLine(string Line)
+        {
+            string worldName = TShock.Config.UseServerName ? TShock.Config.ServerName : Main.worldName;
+            if (Line.Contains("%map%"))
+            {
+                var words = Line.Split(' ');
+                /*If your string (the text in the broadcast) is
+                 * "this is the map name: %map%"
+                 * Then we split that at every space, returning a string array (string[]) like this:
+                 * "this", "is", "the", "map", "name:", "%map%"
+                 */
+                for (int i = 0; i < words.Length; i++)
+                    if (words[i] == "%map%")
+                        words[i] = words[i].Replace("%map%", worldName);
+                /* Then we iterate over it with a for loop, starting at the 0 index of the string[]
+                 * and ending at the end of the string[].
+                 If any word is "%map%", replace "%map%" with the world name*/
+
+                Line = string.Join(" ", words);
+                /* Then we join all the words together again with spaces */
+            }
+
+            if (Line.Contains("%players%"))
+            {
+                var words = Line.Split(' ');
+                for (int i = 0; i < words.Length; i++)
+                    if (words[i] == "%players%")
+                        words[i] = words[i].Replace("%players%",
+                            string.Join(", ",TShock.Utils.GetPlayers(false)));
+
+                Line = string.Join(" ", words);
+            }
+
+            return Line;
+            /* Return the Line that we've changed, replacing the old one */
+        }
 	}
 }
