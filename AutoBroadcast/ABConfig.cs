@@ -27,30 +27,24 @@ namespace AutoBroadcast
 
 		public static void WriteExample(string file)
 		{
-			File.WriteAllText(file, @"{
-  ""Broadcasts"": [
-    {
-      ""Name"": ""Example Broadcast"",
-      ""Enabled"": false,
-      ""Messages"": [
-        ""This is an example broadcast"",
-        ""It will broadcast every 5 minutes"",
-        ""Broadcasts can also execute commands"",
-        ""/time noon""
-      ],
-      ""ColorRGB"": [
-        255.0,
-        0.0,
-        0.0
-      ],
-      ""Interval"": 300,
-      ""StartDelay"": 60,
-      ""Groups"": [],
-      ""TriggerWords"": [],
-      ""TriggerToWholeGroup"": false
-    }
-  ]
-}");
+			var Ex = new Broadcast();
+			Ex.Name = "Example Broadcast";
+			Ex.Enabled = false;
+			Ex.Messages = new string[]
+			{
+				"This is an example broadcast",
+				"It will broadcast every 5 minutes",
+				"Broadcasts can also execute commands",
+				"/time noon"
+			};
+			Ex.ColorRGB = new float[] { 255f, 0f, 0f };
+			Ex.Interval = 300;
+			Ex.StartDelay = 60;
+
+			var Conf = new ABConfig();
+			Conf.Broadcasts = new Broadcast[] { Ex };
+
+			Conf.Write(file);
 		}
 	}
 
