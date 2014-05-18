@@ -8,7 +8,7 @@ using TShockAPI;
 
 namespace AutoBroadcast
 {
-	[ApiVersion(1, 15)]
+	[ApiVersion(1, 16)]
 	public class AutoBroadcast : TerrariaPlugin
 	{
 		public override string Name { get { return "AutoBroadcast"; } }
