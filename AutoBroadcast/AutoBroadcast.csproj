@@ -38,11 +38,9 @@
     <Reference Include="System" />
     <Reference Include="TerrariaServer">
       <HintPath>..\Refs\TerrariaServer.exe</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="TShockAPI">
       <HintPath>..\Refs\TShockAPI.dll</HintPath>
-      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
