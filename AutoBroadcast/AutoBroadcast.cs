@@ -9,7 +9,7 @@ using TShockAPI;
 
 namespace AutoBroadcast
 {
-	[ApiVersion(1, 16)]
+	[ApiVersion(1, 17)]
 	public class AutoBroadcast : TerrariaPlugin
 	{
 		public override string Name { get { return "AutoBroadcast"; } }
@@ -170,7 +170,7 @@ namespace AutoBroadcast
 		{
 			foreach (string Line in Messages)
 			{
-				if (Line.StartsWith("/"))
+				if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
 					Commands.HandleCommand(TSPlayer.Server, Line);
 				}
@@ -191,7 +191,7 @@ namespace AutoBroadcast
 		{
 			foreach (string Line in Messages)
 			{
-				if (Line.StartsWith("/"))
+                if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
 					Commands.HandleCommand(TSPlayer.Server, Line);
 				}
@@ -205,7 +205,7 @@ namespace AutoBroadcast
 		{
 			foreach (string Line in Messages)
 			{
-				if (Line.StartsWith("/"))
+                if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
 					Commands.HandleCommand(TSPlayer.Server, Line);
 				}
