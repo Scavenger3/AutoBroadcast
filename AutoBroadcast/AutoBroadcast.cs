@@ -9,7 +9,7 @@ using TShockAPI;
 
 namespace AutoBroadcast
 {
-	[ApiVersion(1, 16)]
+	[ApiVersion(1, 17)]
 	public class AutoBroadcast : TerrariaPlugin
 	{
 		public override string Name { get { return "AutoBroadcast"; } }
@@ -55,7 +55,7 @@ namespace AutoBroadcast
 			catch (Exception ex)
 			{
 				Config = new ABConfig();
-				Log.ConsoleError("[AutoBroadcast] An exception occurred while parsing the AutoBroadcast config!\n{0}".SFormat(ex.ToString()));
+				TShock.Log.ConsoleError("[AutoBroadcast] An exception occurred while parsing the AutoBroadcast config!\n{0}".SFormat(ex.ToString()));
 			}
 			Update.Elapsed += OnUpdate;
 			Update.Start();
@@ -72,7 +72,7 @@ namespace AutoBroadcast
 			{
 				Config = new ABConfig();
 				args.Player.SendWarningMessage("An exception occurred while parsing the AutoBroadcast config! check logs for more details!");
-				Log.Error("[AutoBroadcast] An exception occurred while parsing tbe AutoBroadcast config!\n{0}".SFormat(ex.ToString()));
+				TShock.Log.Error("[AutoBroadcast] An exception occurred while parsing tbe AutoBroadcast config!\n{0}".SFormat(ex.ToString()));
 			}
 		}
 
@@ -170,7 +170,7 @@ namespace AutoBroadcast
 		{
 			foreach (string Line in Messages)
 			{
-				if (Line.StartsWith("/"))
+				if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
 					Commands.HandleCommand(TSPlayer.Server, Line);
 				}
@@ -191,7 +191,7 @@ namespace AutoBroadcast
 		{
 			foreach (string Line in Messages)
 			{
-				if (Line.StartsWith("/"))
+                if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
 					Commands.HandleCommand(TSPlayer.Server, Line);
 				}
@@ -205,7 +205,7 @@ namespace AutoBroadcast
 		{
 			foreach (string Line in Messages)
 			{
-				if (Line.StartsWith("/"))
+                if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
 					Commands.HandleCommand(TSPlayer.Server, Line);
 				}
@@ -223,7 +223,7 @@ namespace AutoBroadcast
 			if (warn && ret)
 			{
 				Console.WriteLine("Hook timeout detected in AutoBroadcast. You might want to report this.");
-				Log.Error("Hook timeout detected in AutoBroadcast. You might want to report this.");
+				TShock.Log.Error("Hook timeout detected in AutoBroadcast. You might want to report this.");
 			}
 			return ret;
 		}
