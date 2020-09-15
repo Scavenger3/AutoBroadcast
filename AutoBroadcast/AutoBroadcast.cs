@@ -9,11 +9,11 @@ using TShockAPI;
 
 namespace AutoBroadcast
 {
-	[ApiVersion(1, 17)]
+	[ApiVersion(2, 1)]
 	public class AutoBroadcast : TerrariaPlugin
 	{
 		public override string Name { get { return "AutoBroadcast"; } }
-		public override string Author { get { return "Scavenger"; } }
+		public override string Author { get { return "Scavenger & Simon311"; } }
 		public override string Description { get { return "Automatically Broadcast a Message or Command every x seconds"; } }
 		public override Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
@@ -22,9 +22,7 @@ namespace AutoBroadcast
 
 		public AutoBroadcast(Main Game) : base(Game) { }
 
-		static readonly Timer Update = new System.Timers.Timer(1000);
-		public static bool ULock = false;
-		public const int UpdateTimeout = 501;
+		static readonly Timer Update = new Timer(1000);
 
 		public override void Initialize()
 		{
@@ -79,41 +77,29 @@ namespace AutoBroadcast
 		#region Chat
 		public void OnChat(ServerChatEventArgs args)
 		{
-			var Start = DateTime.Now;
-			string[] Groups = new string[0];
-			string[] Messages = new string[0];
-			float[] Colour = new float[0];
-			var PlayerGroup = TShock.Players[args.Who].Group.Name;
+			var PlayerGroup = TShock.Players[args.Who]?.Group?.Name;
 
-			lock (Config.Broadcasts)
-				foreach (var broadcast in Config.Broadcasts)
+			if (string.IsNullOrWhiteSpace(PlayerGroup))
+			{
+				return;
+			}
+
+			foreach (var broadcast in Config.Broadcasts)
+			{
+				if (broadcast == null || !broadcast.Enabled || !broadcast.Groups.Contains(PlayerGroup)) { continue; }
+
+				foreach (string Word in broadcast.TriggerWords)
 				{
-					if (Timeout(Start)) return;
-					if (broadcast == null || !broadcast.Enabled || !broadcast.Groups.Contains(PlayerGroup)) continue;
-
-					foreach (string Word in broadcast.TriggerWords)
+					if (args.Text.Contains(Word))
 					{
-						if (Timeout(Start)) return;
-						if (args.Text.Contains(Word))
+						if (broadcast.TriggerToWholeGroup && broadcast.Groups.Length > 0)
 						{
-							if (broadcast.TriggerToWholeGroup && broadcast.Groups.Length > 0)
-							{
-								Groups = broadcast.Groups;
-							}
-							Messages = broadcast.Messages;
-							Colour = broadcast.ColorRGB;
-							break;
+							BroadcastToGroups(broadcast.Groups, broadcast);
 						}
+						else BroadcastToPlayer(args.Who, broadcast);
+						break;
 					}
 				}
-
-			if (Groups.Length > 0)
-			{
-				BroadcastToGroups(Groups, Messages, Colour);
-			}
-			else
-			{
-				BroadcastToPlayer(args.Who, Messages, Colour);
 			}
 		}
 		#endregion
@@ -121,54 +107,38 @@ namespace AutoBroadcast
 		#region Update
 		public void OnUpdate(object Sender, EventArgs e)
 		{
-			if (Main.worldID == 0) return;
-			if (ULock) return;
-			ULock = true;
-			var Start = DateTime.Now;
+			if (Main.worldID == 0) { return; }
 
-			int NumBroadcasts = 0;
-			lock (Config.Broadcasts)
-			NumBroadcasts = Config.Broadcasts.Length;
-			for (int i = 0; i < NumBroadcasts; i++)
+			foreach (Broadcast broadcast in Config.Broadcasts)
 			{
-				if (Timeout(Start, UpdateTimeout)) return;
-				string[] Groups = new string[0];
-				string[] Messages = new string[0];
-				float[] Colour = new float[0];
-
-				lock (Config.Broadcasts)
+				if (broadcast == null || !broadcast.Enabled || broadcast.Interval < 1)
 				{
-					if (Config.Broadcasts[i] == null || !Config.Broadcasts[i].Enabled || Config.Broadcasts[i].Interval < 1)
-					{
-						continue;
-					}
-					if (Config.Broadcasts[i].StartDelay > 0)
-					{
-						Config.Broadcasts[i].StartDelay--;
-						continue;
-					}
-					Config.Broadcasts[i].StartDelay = Config.Broadcasts[i].Interval; // Start Delay used as Interval Countdown
-					Groups = Config.Broadcasts[i].Groups;
-					Messages = Config.Broadcasts[i].Messages;
-					Colour = Config.Broadcasts[i].ColorRGB;
+					continue;
 				}
 
-				if (Groups.Length > 0)
+				if (broadcast.StartDelay > 0)
 				{
-					BroadcastToGroups(Groups, Messages, Colour);
+					broadcast.StartDelay--;
+					continue;
+				}
+
+				broadcast.StartDelay = broadcast.Interval; // Start Delay used as Interval Countdown
+
+				if (broadcast.Groups.Length > 0)
+				{
+					BroadcastToGroups(broadcast.Groups, broadcast);
 				}
 				else
 				{
-					BroadcastToAll(Messages, Colour);
+					BroadcastToAll(broadcast);
 				}
 			}
-			ULock = false;
 		}
 		#endregion
 
-		public static void BroadcastToGroups(string[] Groups, string[] Messages, float[] Colour)
+		public static void BroadcastToGroups(string[] Groups, Broadcast broadcast)
 		{
-			foreach (string Line in Messages)
+			foreach (string Line in broadcast.Messages)
 			{
 				if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
@@ -176,20 +146,20 @@ namespace AutoBroadcast
 				}
 				else
 				{
-					lock (TShock.Players)
-						foreach (var player in TShock.Players)
+					foreach (var player in TShock.Players)
+					{
+						if (player?.Group != null && Groups.Contains(player.Group.Name))
 						{
-							if (player != null && Groups.Contains(player.Group.Name))
-							{
-								player.SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
-							}
+							player.SendMessage(Line, (byte)broadcast.ColorRGB[0], (byte)broadcast.ColorRGB[1], (byte)broadcast.ColorRGB[2]);
 						}
+					}
 				}
 			}
 		}
-		public static void BroadcastToAll(string[] Messages, float[] Colour)
+
+		public static void BroadcastToAll(Broadcast broadcast)
 		{
-			foreach (string Line in Messages)
+			foreach (string Line in broadcast.Messages)
 			{
                 if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
@@ -197,35 +167,23 @@ namespace AutoBroadcast
 				}
 				else
 				{
-					TSPlayer.All.SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
+					TSPlayer.All.SendMessage(Line, (byte)broadcast.ColorRGB[0], (byte)broadcast.ColorRGB[1], (byte)broadcast.ColorRGB[2]);
 				}
 			}
 		}
-		public static void BroadcastToPlayer(int plr, string[] Messages, float[] Colour)
+		public static void BroadcastToPlayer(int Who, Broadcast broadcast)
 		{
-			foreach (string Line in Messages)
+			foreach (string Line in broadcast.Messages)
 			{
-                if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
+				if (Line.StartsWith(TShock.Config.CommandSpecifier) || Line.StartsWith(TShock.Config.CommandSilentSpecifier))
 				{
 					Commands.HandleCommand(TSPlayer.Server, Line);
 				}
-				else lock(TShock.Players)
+				else
 				{
-					TShock.Players[plr].SendMessage(Line, (byte)Colour[0], (byte)Colour[1], (byte)Colour[2]);
+					TShock.Players[Who]?.SendMessage(Line, (byte)broadcast.ColorRGB[0], (byte)broadcast.ColorRGB[1], (byte)broadcast.ColorRGB[2]);
 				}
 			}
-		}
-
-		public static bool Timeout(DateTime Start, int ms = 500, bool warn = true)
-		{
-			bool ret = (DateTime.Now - Start).TotalMilliseconds >= ms;
-			if (ms == UpdateTimeout && ret) ULock = false;
-			if (warn && ret)
-			{
-				Console.WriteLine("Hook timeout detected in AutoBroadcast. You might want to report this.");
-				TShock.Log.Error("Hook timeout detected in AutoBroadcast. You might want to report this.");
-			}
-			return ret;
 		}
 	}
 }

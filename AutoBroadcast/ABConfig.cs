@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Newtonsoft.Json;
-using TShockAPI;
 
 namespace AutoBroadcast
 {
@@ -20,7 +17,7 @@ namespace AutoBroadcast
 		{
 			if (!File.Exists(file))
 			{
-				ABConfig.WriteExample(file);
+				WriteExample(file);
 			}
 			return JsonConvert.DeserializeObject<ABConfig>(File.ReadAllText(file));
 		}
@@ -37,12 +34,14 @@ namespace AutoBroadcast
 				"Broadcasts can also execute commands",
 				"/time noon"
 			};
-			Ex.ColorRGB = new float[] { 255f, 0f, 0f };
+			Ex.ColorRGB = new int[] { 255, 0, 0 };
 			Ex.Interval = 300;
 			Ex.StartDelay = 60;
 
-			var Conf = new ABConfig();
-			Conf.Broadcasts = new Broadcast[] { Ex };
+			var Conf = new ABConfig
+			{
+				Broadcasts = new Broadcast[] { Ex }
+			};
 
 			Conf.Write(file);
 		}
@@ -53,7 +52,7 @@ namespace AutoBroadcast
 		public string Name = string.Empty;
 		public bool Enabled = false;
 		public string[] Messages = new string[0];
-		public float[] ColorRGB = new float[3];
+		public int[] ColorRGB = new int[3];
 		public int Interval = 0;
 		public int StartDelay = 0;
 		public string[] Groups = new string[0];
